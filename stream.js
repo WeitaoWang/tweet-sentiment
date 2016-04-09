@@ -1,18 +1,9 @@
-var app = require('express')();
+//var app = require('express')();
 var mongoose = require('mongoose');
 var sentimentAnalysis = require('./sentimentAnalysis');
-
+var Tweet = require('./tweet');
 var twit = require('twit');
-
-
-//mongodb
-mongoose.connect('mongodb://localhost/test', function(err) {
-    if(err) {
-        console.log('connection error', err);
-    } else {
-        console.log('connection successful');
-    }
-});
+var db = require('./dbConnection');
 
 var T = new twit({
   consumer_key: 'EjD5szWLFFi9EBuBsKC1Nk7nZ',
@@ -21,29 +12,8 @@ var T = new twit({
   access_token_secret: 'waz9W378CeLg2k9HeV4MsM3hmAUYZe6ycIrq739pp7GjK',
   timeout_ms: 	60*1000,
 });
-//model of tweet
-var tweetSchema = new mongoose.Schema({
-	id_str: String,
-	candidates: String,
-	created_at: String,
-	text: String,
-	is_quote_status: Boolean,
-	quoted_text: String,
-	lang: String,
-	state: String,
-	coordinates: String,
-	sentiment: {
-		score: Number,
-		comparative: Number,
-		tokens: [String],
-		words: [String],
-		positive: [String],
-		negative: [String]
-	}
-});
-var Tweet = mongoose.model('tweet', tweetSchema);
 
-//module.exports = function(callback) {
+module.exports = function(callback) {
 	var TrumpStream = T.stream('statuses/filter', { track: 'Donald Trump' });
 	var HillaryStream = T.stream('statuses/filter', {track: 'Hillary Clinton'});
 	var CruzStream = T.stream('statuses/filter', {track: 'Ted Cruz'});
@@ -51,23 +21,27 @@ var Tweet = mongoose.model('tweet', tweetSchema);
 	TrumpStream.on('tweet', function(tweet) {
 		handleTweet(tweet, "Donald Trump", function(data) {
 			console.log(data);
+			callback(data);
 		});
 	});
 	HillaryStream.on('tweet', function(tweet) {
 		handleTweet(tweet, "Hillary Clinton", function(data) {
 			console.log(data);
+			callback(data);
 		});
 		//socket.emit("Hillary Clinton", HCtweet);
 	});
 	CruzStream.on('tweet', function(tweet) {
 		handleTweet(tweet, "Ted Cruz", function(data) {
 			console.log(data);
+			callback(data);
 		});
 		//socket.emit("Ted Cruz", TCtweet);
 	});
 	SandersStream.on('tweet', function(tweet) {
 		handleTweet(tweet, "Bernie Sanders", function(data) {
 			console.log(data);
+			callback(data);
 		});
 		//socket.emit("Bernie Sanders", BStweet);
 	});
@@ -201,5 +175,5 @@ var Tweet = mongoose.model('tweet', tweetSchema);
 			}
 		}
 	}
-//}
+}
 

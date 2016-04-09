@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<title>Tweet</title>
+	</head>
+	<body>
+		<input id="tweet" type="text"/>
+	</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script>
+		var socket = io('http://localhost:3000');
+		socket.on('tweet', function(data) {
+			$("#tweet").val(data.text);
+			console.log("plz show me");
+			console.log(data.text);
+		}); 
+	</script>
+</html>
