@@ -19,3 +19,45 @@ Analyse sentiment of tweets about president election with real-time mapshowing
 [mongoose](https://github.com/Automattic/mongoose.git): MongoDB object modeling tool;                 
 [sentime](https://github.com/thisandagain/sentiment.git): AFINN-based sentiment analysis for Node.js;  
 [socket.io](https://github.com/socketio/socket.io.git): real-time engine;            
+
+## File
+
+### dbConnection.js
+connect mongodb, which will change if the project is deploied on Heroku
+
+### tweet.js
+mongoose model for tweet
+
+```js
+{
+  id_str: String,
+	candidates: String,
+	created_at: String,
+	text: String,
+	is_quote_status: Boolean,
+	quoted_text: String,
+	lang: String,
+	state: String,
+	coordinates: String,
+	sentiment: {
+		score: Number,
+		comparative: Number,
+		tokens: [String],
+		words: [String],
+		positive: [String],
+		negative: [String]
+	}
+}
+```
+
+### tweetSentiment.js
+control the route
+
+### stream.js
+get the real-time tweets
+
+### HistoricalTweet.js
+get historicalTweet from mongodb
+
+### sentimentAnalysis.js
+analyse text of tweet
