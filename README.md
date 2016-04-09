@@ -14,8 +14,8 @@ Analyse sentiment of tweets about president election with real-time mapshowing
   }
 ```
 
-twit: Twitter API Client for node;                       https://github.com/ttezel/twit.git
-express: node.js web application framework;              https://github.com/strongloop/expressjs.com.git
-mongoose: MongoDB object modeling tool;                  https://github.com/Automattic/mongoose.git
-sentiment: AFINN-based sentiment analysis for Node.js;   https://github.com/thisandagain/sentiment.git
-socket.io: real-time engine;                             https://github.com/socketio/socket.io.git
+twit: Twitter API Client for node;                      https://github.com/ttezel/twit.git
+express: node.js web application framework;             https://github.com/strongloop/expressjs.com.git
+mongoose: MongoDB object modeling tool;                 https://github.com/Automattic/mongoose.git
+sentiment: AFINN-based sentiment analysis for Node.js;  https://github.com/thisandagain/sentiment.git
+socket.io: real-time engine;                            https://github.com/socketio/socket.io.git
