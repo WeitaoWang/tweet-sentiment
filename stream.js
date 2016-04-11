@@ -1,9 +1,9 @@
 //var app = require('express')();
-var mongoose = require('mongoose');
-var sentimentAnalysis = require('./sentimentAnalysis');
-var Tweet = require('./tweet');
-var twit = require('twit');
-var db = require('./dbConnection');
+var mongoose = require('mongoose'),
+	sentimentAnalysis = require('./sentimentAnalysis'),
+	Tweet = require('./tweet'),
+	twit = require('twit'),
+	db = require('./dbConnection');
 
 var T = new twit({
   consumer_key: 'EjD5szWLFFi9EBuBsKC1Nk7nZ',
@@ -14,10 +14,11 @@ var T = new twit({
 });
 
 module.exports = function(callback) {
-	var TrumpStream = T.stream('statuses/filter', { track: 'Donald Trump' });
-	var HillaryStream = T.stream('statuses/filter', {track: 'Hillary Clinton'});
-	var CruzStream = T.stream('statuses/filter', {track: 'Ted Cruz'});
-	var SandersStream = T.stream('statuses/filter', {track: 'Bernie Sanders'});
+	var TrumpStream = T.stream('statuses/filter', { track: 'Donald Trump' }),
+		HillaryStream = T.stream('statuses/filter', {track: 'Hillary Clinton'}),
+		CruzStream = T.stream('statuses/filter', {track: 'Ted Cruz'}),
+		SandersStream = T.stream('statuses/filter', {track: 'Bernie Sanders'});
+		
 	TrumpStream.on('tweet', function(tweet) {
 		handleTweet(tweet, "Donald Trump", function(data) {
 			console.log(data);
