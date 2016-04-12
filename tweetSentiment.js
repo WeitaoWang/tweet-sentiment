@@ -5,7 +5,11 @@ var io = require('socket.io')(server);
 var stream = require('./stream');
 var historyTweets = require('./historicalTweet');
 var historySentimentResult = require('./historicalSentimentResult');
-server.listen(3000);
+var port = app.get("port") || 3000;
+server.listen(port, function() {
+    
+    console.log("listening on port "+ port);
+});
 
 app.get('/sentimentresult', function(req, res) {
 	historySentimentResult(function(data){
