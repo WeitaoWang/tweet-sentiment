@@ -5,10 +5,10 @@ var io = require('socket.io')(server);
 var stream = require('./stream');
 var historyTweets = require('./historicalTweet');
 var historySentimentResult = require('./historicalSentimentResult');
-var port = app.get("port") || 3000;
-server.listen(port, function() {
+app.set('port', process.env.PORT || '3000');
+server.listen(app.get('port'), function() {
     
-    console.log("listening on port "+ port);
+    console.log("listening on port "+ app.get("port"));
 });
 
 app.get('/sentimentresult', function(req, res) {
