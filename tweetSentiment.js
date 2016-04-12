@@ -21,6 +21,7 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function(socket) {
 	console.log("socket connection is on");
 	stream(function(data) {
+        console.log("streaming");
 		socket.emit('tweet', data);
 	});
 });
