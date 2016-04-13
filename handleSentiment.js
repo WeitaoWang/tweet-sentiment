@@ -92,7 +92,7 @@ function handleSentimentScore(tweets) {
 		positiveAmount = 0,
 		negativeAmount = 0;
 	amount = tweets.length;
-	cosole.log(amount);
+	console.log(amount);
 	for(var tweetNum = 0; tweetNum < tweets.length; tweetNum ++) {
 		if(tweets[tweetNum].sentiment.score > 0) {
 			positiveAvgScore += tweets[tweetNum].sentiment.score;
