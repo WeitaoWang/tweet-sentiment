@@ -32,8 +32,8 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 var projection = d3.geo.albersUsa();
 
 var radius = d3.scale.sqrt()
-    .domain([0, 10])
-    .range([0, 70]);
+    .domain([0, 300])
+    .range([0, 100]);
 
 var force = d3.layout.force()
     .charge(0)
@@ -46,7 +46,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/public/sentimentresults.json", function(error, states) {
+d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json", function(error, states) {
   if (error) throw error;
 
   var nodes = states
@@ -54,7 +54,7 @@ d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/pub
       .map(function(d) {
         var point = projection(d.coordinates),
             state = d.state,
-            value = d.positiveAvgScore;
+            value = d.amount;
         return {
           x: point[0], y: point[1],
           x0: point[0], y0: point[1],

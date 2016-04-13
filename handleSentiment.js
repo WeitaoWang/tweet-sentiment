@@ -56,11 +56,9 @@ var states = [
 { "stateName":"Wyoming", "coordinates":[-107.008835,42.675762]}
 ];
 
-var curCoordinates;
 var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
 for(var i = 0; i < states.length; i ++) {
 	for(var j = 0; j < candidates.length; j ++) {
-		curCoordinates = states[i].coordinates;
 		getTweetsOfStateOfCandidate(states[i].stateName, candidates[j], function(data) {
 			if(data) {
 				handleSentimentScore(data);
@@ -90,7 +88,8 @@ function handleSentimentScore(tweets) {
 		negativeAvgScore = 0,
 		amount,
 		positiveAmount = 0,
-		negativeAmount = 0;
+		negativeAmount = 0,
+		curCoordinates;
 	amount = tweets.length;
 	for(var tweetNum = 0; tweetNum < tweets.length; tweetNum ++) {
 		if(tweets[tweetNum].sentiment.score > 0) {
@@ -101,7 +100,11 @@ function handleSentimentScore(tweets) {
 			negativeAmount ++;
 		}
 	} 
-
+	for(var i = 0; i < states.length; i ++) { 
+		if(states[i].stateName == tweets[0].state) {
+			curCoordinates = states[i].coordinates;
+		}	
+	}
 	if(negativeAmount == 0) {
 		negativeAvgScore = 0;
 	}else {
@@ -134,7 +137,6 @@ function handleSentimentScore(tweets) {
 					
 					sentimentResult.save(function(err, sentimentResult) {
 						if (err) return handleError(err);
-						console.log(sentimentResult);
 					});
 					//console.log(sentimentResult);
 				}else {
@@ -145,7 +147,6 @@ function handleSentimentScore(tweets) {
 					result.negativePercent = negativeAmount / amount;
 					result.save(function(err) {
 						if (err) return handleError(err);
-						console.log(sentimentResult);
 					});
 				}
 			});
