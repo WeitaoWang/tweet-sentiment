@@ -185,3 +185,4 @@
 {"_id":{"$oid":"570d8b344d48b9110056753c"},"coordinates":[-72.814309,44.081127],"state":"Vermont","candidates":"Ted Cruz","positiveAvgScore":2,"negativeAvgScore":0,"amount":1,"positivePercent":1,"negativePercent":0,"__v":0}
 {"_id":{"$oid":"570d8b344d48b9110056753d"},"coordinates":[-107.008835,42.675762],"state":"Wyoming","candidates":"Ted Cruz","positiveAvgScore":0,"negativeAvgScore":-3,"amount":1,"positivePercent":0,"negativePercent":1,"__v":0}
 {"_id":{"$oid":"570d9acaf9f0091100ecbc5e"},"coordinates":[-148.716968,61.288254],"state":"Alaska","candidates":"Ted Cruz","positiveAvgScore":0,"negativeAvgScore":-7,"amount":1,"positivePercent":0,"negativePercent":1,"__v":0}
+
