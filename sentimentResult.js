@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 
 var sentimentResultSchema = new mongoose.Schema({
 	state: String,
+	coordinates:[Number],
 	candidates: String,
 	positiveAvgScore: Number,
 	negativeAvgScore: Number,
