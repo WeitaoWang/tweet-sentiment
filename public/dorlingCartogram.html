@@ -32,8 +32,8 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 var projection = d3.geo.albersUsa();
 
 var radius = d3.scale.sqrt()
-    .domain([0, d3.max(valueById)])
-    .range([0, 30]);
+    .domain([0, 10])
+    .range([0, 70]);
 
 var force = d3.layout.force()
     .charge(0)
@@ -46,20 +46,21 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/public/state.json", function(error, states) {
+d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/public/sentimentresults.json", function(error, states) {
   if (error) throw error;
 
-  var nodes = states.features
-      .filter(function(d) { return !isNaN(valueById[+d.id]); })
+  var nodes = states
+      .filter(function(d) { return d.candidates == "Donald Trump"; })
       .map(function(d) {
-        var point = projection(d.geometry.coordinates),
-            value = valueById[+d.id];
-        if (isNaN(value)) fail();
+        var point = projection(d.coordinates),
+            state = d.state,
+            value = d.positiveAvgScore;
         return {
           x: point[0], y: point[1],
           x0: point[0], y0: point[1],
           r: radius(value),
-          value: value
+          value: value,
+            state:state
         };
       });
 
@@ -72,7 +73,6 @@ d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/pub
       .data(nodes)
     .enter().append("circle")
       .attr("r", function(d) { return d.r; });
-
   function tick(e) {
     node.each(gravity(e.alpha * .1))
         .each(collide(.5))

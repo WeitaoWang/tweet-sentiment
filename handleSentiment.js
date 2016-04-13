@@ -134,6 +134,7 @@ function handleSentimentScore(tweets) {
 					
 					sentimentResult.save(function(err, sentimentResult) {
 						if (err) return handleError(err);
+						console.log(sentimentResult);
 					});
 					//console.log(sentimentResult);
 				}else {
@@ -144,6 +145,7 @@ function handleSentimentScore(tweets) {
 					result.negativePercent = negativeAmount / amount;
 					result.save(function(err) {
 						if (err) return handleError(err);
+						console.log(sentimentResult);
 					});
 				}
 			});
