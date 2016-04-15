@@ -14,26 +14,27 @@ circle {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
-// Ratio of Obese (BMI >= 30) in U.S. Adults, CDC 2008
-var valueById = [
-   .155, .187, .198,  .144, .133, .175, .151,  .154, .100, .125,
-  .171,  .124, .172, .133,  .145, .108, .142, .167, .201, .175,
-  .159, .169, .177, .141, .163, .117, .182, .153, .195, .189,
-  .134, .163, .133, .151, .145, .130, .139, .169, .164, .175,
-  .135, .152, .169,  .143, .132, .167, .139, .184, .159, .140,
-  .146, .157,  .134, .139, .183, .160, .143
-];
-
-var margin = {top: 0, right: 0, bottom: 0, left: 0},
+var margin = {top: 100, right: 0, bottom: 0, left: 0},
     width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
+    height = 700 - margin.top - margin.bottom,
     padding = 3;
 
 var projection = d3.geo.albersUsa();
 
 var radius = d3.scale.sqrt()
     .domain([0, 300])
-    .range([0, 100]);
+    .range([10, 100]);
+
+var textSize = d3.scale.sqrt()
+    .domain([0, 300])
+    .range([0, 50]);
+    
+var color = function(v) {
+    if(v == 0) return "#FFFFFE";
+    if(v < 1.5) return "#FFD7D7";
+    if(v < 3) return "#FF8788";
+    if(v < 10) return "#FF1011";
+}
 
 var force = d3.layout.force()
     .charge(0)
@@ -50,17 +51,19 @@ d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/dat
   if (error) throw error;
 
   var nodes = states
-      .filter(function(d) { return d.candidates == "Donald Trump"; })
+      .filter(function(d) { return d.candidates == "Ted Cruz"; })
       .map(function(d) {
         var point = projection(d.coordinates),
+            value = d.amount,
             state = d.state,
-            value = d.amount;
+            positiveAvgScore = d.positiveAvgScore
         return {
           x: point[0], y: point[1],
           x0: point[0], y0: point[1],
           r: radius(value),
           value: value,
-            state:state
+          state: state,
+          positiveAvgScore: positiveAvgScore
         };
       });
 
@@ -68,16 +71,27 @@ d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/dat
       .nodes(nodes)
       .on("tick", tick)
       .start();
-
   var node = svg.selectAll("circle")
       .data(nodes)
     .enter().append("circle")
-      .attr("r", function(d) { return d.r; });
+      .attr("r", function(d) { return d.r; })
+      .style("fill", function(d) { return color(d.positiveAvgScore); });
+  var circleText = svg.selectAll("text")
+        .data(nodes)
+        .enter().append("text")
+        .attr("text-anchor", "middle")
+        .text(function(d) { return d.state })
+        .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) });
+        
   function tick(e) {
     node.each(gravity(e.alpha * .1))
         .each(collide(.5))
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+    circleText.each(gravity(e.alpha * .1))
+        .each(collide(.5))
+        .attr("x", function(d) { return d.x; })
+        .attr("y", function(d) { return d.y; });
   }
 
   function gravity(k) {

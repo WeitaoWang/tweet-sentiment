@@ -150,7 +150,6 @@ function handleSentimentScore(tweets) {
 					});
 				}
 			});
-
 	}
 }
 
