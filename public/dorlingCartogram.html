@@ -19,6 +19,7 @@ var margin = {top: 100, right: 0, bottom: 0, left: 0},
     height = 700 - margin.top - margin.bottom,
     padding = 3;
 
+
 var projection = d3.geo.albersUsa();
 
 var radius = d3.scale.sqrt()
@@ -30,7 +31,7 @@ var textSize = d3.scale.sqrt()
     .range([0, 50]);
     
 var color = function(v) {
-    if(v == 0) return "#FFFFFE";
+    if(v == 0) return "#F0F0F0";
     if(v < 1.5) return "#FFD7D7";
     if(v < 3) return "#FF8788";
     if(v < 10) return "#FF1011";
@@ -51,7 +52,7 @@ d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/dat
   if (error) throw error;
 
   var nodes = states
-      .filter(function(d) { return d.candidates == "Ted Cruz"; })
+      .filter(function(d) { return d.candidates == "Bernie Sanders"; })
       .map(function(d) {
         var point = projection(d.coordinates),
             value = d.amount,

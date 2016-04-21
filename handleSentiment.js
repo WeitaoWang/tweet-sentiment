@@ -103,6 +103,7 @@ function handleSentimentScore(tweets) {
 	for(var i = 0; i < states.length; i ++) { 
 		if(states[i].stateName == tweets[0].state) {
 			curCoordinates = states[i].coordinates;
+			break;
 		}	
 	}
 	if(negativeAmount == 0) {
