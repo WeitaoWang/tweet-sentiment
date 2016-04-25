@@ -21,6 +21,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/dorlingCartogram', function(req, res) {
 	res.sendFile(__dirname + '/public/dorlingCartogram.html');
 })
+
 app.get('/test', function(req, res) {
 	res.sendFile(__dirname + '/public/test.html');
 })

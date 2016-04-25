@@ -534,9 +534,8 @@ d3.select(self.frameElement).style("height", height + "px");
 //get json data    
 queue()
     .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/us.json")
-    .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
-    //.defer(d3.json, "us.json")
-    //.defer(d3.json, "sentimentresults.json")
+    //.defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
+    .defer(d3.json, "http://tweet-sentiment-nyu.herokuapp.com/sentimentResult")
     .await(ready);
 
 function ready(error, us, sentimentResults) {

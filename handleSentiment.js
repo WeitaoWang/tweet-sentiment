@@ -1,8 +1,10 @@
 var mongoose = require('mongoose'),
 	Tweet = require('./tweet'),
 	SentimentResult = require('./sentimentResult'),
+	SentimentResultDaily = require('./sentimentResultDaily'),
 	db = require('./dbConnection');
 
+var dates = ["4-21-2016","4-22-2016"];
 var states = [
 { "stateName":"Alabama", "coordinates":[-86.766233,33.001471]}, 
 { "stateName":"Alaska", "coordinates":[-148.716968,61.288254]}, 
@@ -59,6 +61,7 @@ var states = [
 var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
 for(var i = 0; i < states.length; i ++) {
 	for(var j = 0; j < candidates.length; j ++) {
+		console.log("First");
 		getTweetsOfStateOfCandidate(states[i].stateName, candidates[j], function(data) {
 			if(data) {
 				handleSentimentScore(data);
@@ -66,6 +69,116 @@ for(var i = 0; i < states.length; i ++) {
 		});
 	}
 }
+for(var i = 0; i < dates.length; i ++) {
+	for(var j = 0; j < states.length; j ++) {
+		for(var m = 0; m < candidates.length; m ++) {
+			console.log("Second");
+			getTweetsDaily(dates[i], states[j].stateName, candidates[m], function(data) {
+				if(data) {
+					handleDaily(data);
+				}
+			});
+		}
+	}
+}
+
+function getTweetsDaily(date, stateName, candidateName, callback) {
+	Tweet.find({state: stateName, candidates: candidateName, created_at: date}).
+		exec(function(err, tweets) {
+			if(err) {
+				return console.log(err);
+			}else if(tweets.length == 0) {
+				callback(null);
+			}else {
+				callback(tweets);
+			}
+		});
+}
+function handleDaily(tweets) {
+	var positiveAvgScore = 0,
+		negativeAvgScore = 0,
+		amount,
+		positiveAmount = 0,
+		negativeAmount = 0,
+		curCoordinates = [0, 0],
+		dayNum = 0;
+	amount = tweets.length;
+
+	//get dayNum
+	var day = tweets[0].created_at.split("-");
+	dayNum = parseInt(day[1]) - 10 + 1;
+	console.log(dayNum);
+
+	for(var tweetIndex = 0; tweetIndex < amount; tweetIndex ++) {
+		if(tweets[tweetIndex].sentiment.score > 0) {
+			positiveAvgScore += tweets[tweetIndex].sentiment.score;
+			positiveAmount ++;
+		}else if(tweets[tweetIndex].sentiment.score < 0) {
+			negativeAvgScore += tweets[tweetIndex].sentiment.score;
+			negativeAmount ++;
+		}
+	}
+	for(var i = 0; i < states.length; i ++) { 
+		if(states[i].stateName == tweets[0].state) {
+			curCoordinates[0] = states[i].coordinates[0];
+			curCoordinates[1] = states[i].coordinates[1];
+			break;
+		}	
+	}
+	if(negativeAmount == 0) {
+		negativeAvgScore = 0;
+	}else {
+		negativeAvgScore /= negativeAmount;
+	}
+	if(positiveAmount == 0) {
+		positiveAvgScore = 0;
+	}else {
+		positiveAvgScore /= positiveAmount;
+	}
+	if(positiveAmount + negativeAmount != amount) {
+		console.log(tweets[0].state+ tweets[0].candidates);
+		console.log("The computation is wrong");
+	}else {
+		SentimentResultDaily.findOne({created_at: tweets[0].created_at, state : tweets[0].state, candidates : tweets[0].candidates},
+			function(err, result) {
+				if (err) {
+					return handleError(err);
+				}else if(result == null) {
+					var sentimentResultDaily = new SentimentResultDaily({
+							state: tweets[0].state,
+							coordinates: curCoordinates,
+							candidates: tweets[0].candidates,
+							positiveAvgScore: positiveAvgScore,
+							negativeAvgScore: negativeAvgScore,
+							amount: amount,
+							positivePercent: positiveAmount / amount, 
+							negativePercent: negativeAmount / amount,
+							dayNum: dayNum,
+							eventInfo: null,
+							date: tweets[0].created_at
+					});
+					
+					sentimentResultDaily.save(function(err, sentimentResultDaily) {
+						if (err) return handleError(err);
+					});
+					//console.log(sentimentResult);
+				}else {
+					result.positiveAvgScore = positiveAvgScore;
+					result.negativeAvgScore = negativeAvgScore;
+					result.amount = amount;
+					result.positivePercent = positiveAmount / amount;
+					result.negativePercent = negativeAmount / amount;
+					result.save(function(err) {
+						if (err) return handleError(err);
+					});
+				}
+			});
+	}
+
+}
+
+
+
 
 function getTweetsOfStateOfCandidate(stateName, candidateName, callback) {
 	Tweet.find({state : stateName, candidates : candidateName}).
@@ -89,7 +202,7 @@ function handleSentimentScore(tweets) {
 		amount,
 		positiveAmount = 0,
 		negativeAmount = 0,
-		curCoordinates;
+		curCoordinates = [0, 0];
 	amount = tweets.length;
 	for(var tweetNum = 0; tweetNum < tweets.length; tweetNum ++) {
 		if(tweets[tweetNum].sentiment.score > 0) {
