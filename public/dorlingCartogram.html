@@ -52,7 +52,7 @@ d3.json("http://tweet-sentiment-nyu.herokuapp.com/sentimentResult", function(err
   if (error) throw error;
 
   var nodes = states
-      .filter(function(d) { return d.candidates == "Bernie Sanders"; })
+      .filter(function(d) { return d.candidates == "Donald Trump"; })
       .map(function(d) {
         var point = projection(d.coordinates),
             value = d.amount,
