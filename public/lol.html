@@ -509,6 +509,14 @@
                           return curSentiment === "Positive" ? color(d.positiveAvgScore) : color(d.negativeAvgScore);
                       }
                   })
+                .on('mouseover', function(d, i) {
+                    d3.select(this)
+                        .style("stroke", "black")
+                        .style("stroke-width", 2);
+                })
+                .on('mouseout', function(d, i) {
+                    d3.select(this).style("stroke", undefined);
+                })
                 .on("click", function(d) {
                     showToolTip(d);
                 });
@@ -829,11 +837,21 @@
                 .orient("left")
                 .tickValues([-1,-.8,-.6,-.4,-.2,0,.2,.4,.6,.8,1])
                 .tickFormat(formatPercent);
+            nestedBarSVG.append("text")
+                .attr("transform", "translate(50, 15)")
+                .style("font", "px Menlo, sans-serif")
+                
             
             nestedBarSVG.append("g")
                 .attr("class", "nestedYAxis")
                 .attr("transform", "translate(39, 8)")
-                .call(nestedBarYAxis);
+                .call(nestedBarYAxis)
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Sentiment Percentage");
             nestedBarSVG.append("g")
                 .attr("class", "nestedXAxis")
                 .attr("transform", "translate(55, 175)")
