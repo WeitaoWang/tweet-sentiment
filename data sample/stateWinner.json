@@ -1,0 +1,308 @@
+[
+  {
+    "State": "Alabama",
+    "abbreviation": "AL",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Alaska",
+    "abbreviation": "AK",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Arizona",
+    "abbreviation": "AZ",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Arkansas",
+    "abbreviation": "AR",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "California",
+    "abbreviation": "CA",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Colorado",
+    "abbreviation": "CO",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Connecticut",
+    "abbreviation": "CT",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Delaware",
+    "abbreviation": "DE",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Florida",
+    "abbreviation": "FL",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Georgia",
+    "abbreviation": "GA",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Hawaii",
+    "abbreviation": "HI",
+    "Republican": "Donald Trump",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Idaho",
+    "abbreviation": "ID",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Illinois",
+    "abbreviation": "IL",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Indiana",
+    "abbreviation": "IN",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Iowa",
+    "abbreviation": "IA",
+    "Republican": "Ted Cruz",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Kansas",
+    "abbreviation": "KS",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Kentucky",
+    "abbreviation": "KY",
+    "Republican": "Donald Trump",
+    "Democrat": 0
+  },
+  {
+    "State": "Louisiana",
+    "abbreviation": "LA",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Maine",
+    "abbreviation": "ME",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Maryland",
+    "abbreviation": "MD",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Massachusetts",
+    "abbreviation": "MA",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Michigan",
+    "abbreviation": "MI",
+    "Republican": "Donald Trump",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Minnesota",
+    "abbreviation": "MN",
+    "Republican": "M. Rubio",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Mississippi",
+    "abbreviation": "MS",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Missouri",
+    "abbreviation": "MO",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Montana",
+    "abbreviation": "MT",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Nebraska",
+    "abbreviation": "NE",
+    "Republican": 0,
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Nevada",
+    "abbreviation": "NV",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "New Hampshire",
+    "abbreviation": "NH",
+    "Republican": "Donald Trump",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "New Jersey",
+    "abbreviation": "NJ",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "New Mexico",
+    "abbreviation": "NM",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "New York",
+    "abbreviation": "NY",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "North Carolina",
+    "abbreviation": "NC",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "North Dakota",
+    "abbreviation": "ND",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Ohio",
+    "abbreviation": "OH",
+    "Republican": "J. Kasich",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Oklahoma",
+    "abbreviation": "OK",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Oregon",
+    "abbreviation": "OR",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Pennsylvania",
+    "abbreviation": "PA",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Rhode Island",
+    "abbreviation": "RI",
+    "Republican": "Donald Trump",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "South Carolina",
+    "abbreviation": "SC",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "South Dakota",
+    "abbreviation": "SD",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Tennessee",
+    "abbreviation": "TN",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Texas",
+    "abbreviation": "TX",
+    "Republican": "Ted Cruz",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Utah",
+    "abbreviation": "UT",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Vermont",
+    "abbreviation": "VT",
+    "Republican": "Donald Trump",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Virginia",
+    "abbreviation": "VA",
+    "Republican": "Donald Trump",
+    "Democrat": "Hillary Clinton"
+  },
+  {
+    "State": "Washington",
+    "abbreviation": "WA",
+    "Republican": 0,
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "West Virginia",
+    "abbreviation": "WV",
+    "Republican": 0,
+    "Democrat": 0
+  },
+  {
+    "State": "Wisconsin",
+    "abbreviation": "WI",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Wyoming",
+    "abbreviation": "WY",
+    "Republican": "Ted Cruz",
+    "Democrat": "Bernie Sanders"
+  },
+  {
+    "State": "Washington DC",
+    "abbreviation": "DC",
+    "Republican": "M. Rubio",
+    "Democrat": 0
+  }
+]
