@@ -16,6 +16,12 @@ app.get('/sentimentresult', function(req, res) {
 		res.json(data);
 	});
 });
+app.get('/lol', function(req, res) {
+	res.sendFile(__dirname + '/public/lol.html');
+});
+app.get('/choropleth', function(req, res) {
+	res.sendFile(__dirname + '/public/choropleth.html');
+});
 
 app.use(express.static(__dirname + '/public'));
 app.get('/dorlingCartogram', function(req, res) {

@@ -5,130 +5,241 @@
 
 circle {
   fill: #eee;
-  stroke: #000;
-  stroke-width: 1.5px;
 }
 
 </style>
 <body>
+    <div>
+        <select id="sentimentOption">
+            <option value="Positive">Positive Analysis</option>
+            <option value="Negative">Negative Analysis</option>
+        </select>
+    </div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script>
+$("#sentimentOption").change(function() {
+    selectChanged();
+});
+    
+function selectChanged() {
+    d3.selectAll("svg > *").remove();
+    d3.selectAll("circle > *").remove();
+    d3.selectAll("text > *").remove();
+    nodesCollection = [];
+    curSentiment = $("#sentimentOption").val();
+    render(_states);
+}
 
-var margin = {top: 100, right: 0, bottom: 0, left: 0},
-    width = 960 - margin.left - margin.right,
-    height = 700 - margin.top - margin.bottom,
+var _states;
+var curSentiment = "Positive";
+
+var margin = {top: 0, right: 0, bottom: 0, left: 10},
+    width = 610 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom,
     padding = 3;
 
 
-var projection = d3.geo.albersUsa();
+var projection = d3.geo.albersUsa()
+    .scale(700)
 
-var radius = d3.scale.sqrt()
+var size = d3.scale.linear()
     .domain([0, 300])
-    .range([10, 100]);
+    .range([10, 250]);
 
-var textSize = d3.scale.sqrt()
-    .domain([0, 300])
-    .range([0, 50]);
-    
-var color = function(v) {
-    if(v == 0) return "#F0F0F0";
-    if(v < 1.5) return "#FFD7D7";
-    if(v < 3) return "#FF8788";
-    if(v < 10) return "#FF1011";
+
+//color handler
+var color = function(v) {   
+    switch(curSentiment) {
+        case "Positive" : return positiveColor(v);
+        case "Negative" : return negativeColor(v);
+    }
+}
+var redSaturation = ["#FDD2AA","#F7976B","#F26123","#B7161E"];
+var blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
+var positiveDegree = [0, 1.5, 3, 10],
+    negativeDegree = [-10, -5, -3, 0];
+var positiveColor = function(v) {
+    if(v == positiveDegree[0]) return redSaturation[0];
+    if(v < positiveDegree[1]) return redSaturation[1];
+    if(v < positiveDegree[2]) return redSaturation[2];
+    if(v < positiveDegree[3]) return redSaturation[3];
+}
+var negativeColor = function(v) {
+    if(v == negativeDegree[3]) return blueSaturation[3];
+    if(v > negativeDegree[2]) return blueSaturation[2];
+    if(v > negativeDegree[1]) return blueSaturation[1];
+    if(v > negativeDegree[0]) return blueSaturation[0];
 }
 
-var force = d3.layout.force()
-    .charge(0)
-    .gravity(0)
-    .size([width, height]);
+var nodesCollection = [];
+    
+var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-d3.json("http://tweet-sentiment-nyu.herokuapp.com/sentimentResult", function(error, states) {
+var svgs = [];
+for(var n = 0; n < 4; n ++) {
+    var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .attr("transform", "translate(" + 500 + "," + 0 + ")")
+    svgs.push(svg);
+}
+    
+    
+//http://tweet-sentiment-nyu.herokuapp.com/sentimentResult
+d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json", function(error, states) {
   if (error) throw error;
-
-  var nodes = states
-      .filter(function(d) { return d.candidates == "Donald Trump"; })
-      .map(function(d) {
-        var point = projection(d.coordinates),
-            value = d.amount,
-            state = d.state,
-            positiveAvgScore = d.positiveAvgScore
-        return {
-          x: point[0], y: point[1],
-          x0: point[0], y0: point[1],
-          r: radius(value),
-          value: value,
-          state: state,
-          positiveAvgScore: positiveAvgScore
-        };
-      });
-
-  force
-      .nodes(nodes)
-      .on("tick", tick)
-      .start();
-  var node = svg.selectAll("circle")
-      .data(nodes)
-    .enter().append("circle")
-      .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) { return color(d.positiveAvgScore); });
-  var circleText = svg.selectAll("text")
-        .data(nodes)
-        .enter().append("text")
-        .attr("text-anchor", "middle")
-        .text(function(d) { return d.state })
-        .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) });
-        
-  function tick(e) {
-    node.each(gravity(e.alpha * .1))
-        .each(collide(.5))
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-    circleText.each(gravity(e.alpha * .1))
-        .each(collide(.5))
-        .attr("x", function(d) { return d.x; })
-        .attr("y", function(d) { return d.y; });
-  }
-
-  function gravity(k) {
-    return function(d) {
-      d.x += (d.x0 - d.x) * k;
-      d.y += (d.y0 - d.y) * k;
-    };
-  }
-
-  function collide(k) {
-    var q = d3.geom.quadtree(nodes);
-    return function(node) {
-      var nr = node.r + padding,
-          nx1 = node.x - nr,
-          nx2 = node.x + nr,
-          ny1 = node.y - nr,
-          ny2 = node.y + nr;
-      q.visit(function(quad, x1, y1, x2, y2) {
-        if (quad.point && (quad.point !== node)) {
-          var x = node.x - quad.point.x,
-              y = node.y - quad.point.y,
-              l = x * x + y * y,
-              r = nr + quad.point.r;
-          if (l < r * r) {
-            l = ((l = Math.sqrt(l)) - r) / l * k;
-            node.x -= x *= l;
-            node.y -= y *= l;
-            quad.point.x += x;
-            quad.point.y += y;
-          }
-        }
-        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-      });
-    };
-  }
+    _states = states;
+    render(_states, curSentiment);
 });
+function render(states, curSentiment) {
+    for(var n = 0; n < 4; n ++) {// four candidates
+      var nodes = states
+        .filter(function(d) { return d.candidates == candidates[n]; })
+        .map(function(d) {
+            var point = projection(d.coordinates),
+                value = d.amount,
+                state = d.state,
+                positiveAvgScore = d.positiveAvgScore,
+                negativeAvgScore = d.negativeAvgScore;
+            return {
+              x: point[0], y: point[1],
+              x0: point[0], y0: point[1],
+              r: Math.sqrt(30*size(value) / Math.PI),
+              value: value,
+              state: getAbbr(state),
+              positiveAvgScore: positiveAvgScore,
+              negativeAvgScore: negativeAvgScore
+            };
+          });
+      nodesCollection.push(nodes);
+  }
+    for(var n = 0; n < 4; n ++) {
+        renderDorling(nodesCollection[n], n);
+    }
+}
+function renderDorling(nodes, n) {
+    var g = svgs[n].append("g")
+            .attr("transform", "translate(" + -170 + "," + -60 + ")");;
+    
+    var force = d3.layout.force()
+            .charge(0)
+            .gravity(0)
+            .size([width, height])
+            .nodes(nodes)
+            .on("tick", tick)
+            .start();
+    var node = g.selectAll("circle")
+          .data(nodes)
+        .enter().append("circle")
+          .attr("r", function(d) { return d.r; })
+          .style("fill", function(d) { return curSentiment === "Positive" ? color(d.positiveAvgScore) : color(d.negativeAvgScore) });
 
-</script>
+    var circleText = g.selectAll("text")
+            .data(nodes)
+            .enter().append("text")
+            .attr("text-anchor", "middle")
+            .text(function(d) { return d.state })
+            .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) })
+            .attr("fill", "#FFFFFF");
+      function tick(e) {
+        node.each(gravity(e.alpha * .1))
+            .each(collide(.5))
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+        circleText.each(gravity(e.alpha * .1))
+            .each(collide(.5))
+            .attr("x", function(d) { return d.x; })
+            .attr("y", function(d) { return d.y; });
+      }
+
+      function gravity(k) {
+        return function(d) {
+          d.x += (d.x0 - d.x) * k;
+          d.y += (d.y0 - d.y) * k;
+        };
+      }
+
+      function collide(k) {
+        var q = d3.geom.quadtree(nodes);
+        return function(node) {
+          var nr = node.r + padding,
+              nx1 = node.x - nr,
+              nx2 = node.x + nr,
+              ny1 = node.y - nr,
+              ny2 = node.y + nr;
+          q.visit(function(quad, x1, y1, x2, y2) {
+            if (quad.point && (quad.point !== node)) {
+              var x = node.x - quad.point.x,
+                  y = node.y - quad.point.y,
+                  l = x * x + y * y,
+                  r = nr + quad.point.r;
+              if (l < r * r) {
+                l = ((l = Math.sqrt(l)) - r) / l * k;
+                node.x -= x *= l;
+                node.y -= y *= l;
+                quad.point.x += x;
+                quad.point.y += y;
+              }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+          });
+        };
+      }   
+    }
+function getAbbr(stateName) {
+    switch(stateName) {
+				case "Alabama": return "AL";
+				case "Alaska": return "AK";
+				case "Arizona": return "AZ";
+				case "Arkansas": return "AR";
+				case "California": return "CA";
+				case "Colorado": return "CO";
+				case "Connecticut": return "CT";
+				case "Delaware": return "DE";
+				case "Florida": return "FL";
+				case "Georgia": return "GA";
+				case "Hawaii": return "HI";
+				case "Idaho": return "ID";
+				case "Illinois": return "IL";
+				case "Indiana": return "IN";
+				case "Iowa": return "IA";
+				case "Kansas": return "KS";
+				case "Kentucky": return "KY";
+				case "Louisiana": return "LA";
+				case "Maine": return "ME";
+				case "Maryland": return "MD";
+				case "Massachusetts": return "MA";
+				case "Michigan": return "MI";
+				case "Minnesota": return "MN";
+				case "Mississippi": return "MS";
+				case "Missouri": return "MO";
+				case "Montana": return "MT";
+				case "Nebraska": return "NE";
+				case "Nevada": return "NV";
+				case "New Hampshire": return "NH";
+				case "New Jersey": return "NJ";
+				case "New Mexico": return "NM";
+				case "New York": return "NY";
+				case "North Carolina": return "NC";
+				case "North Dakota": return "ND";
+				case "Ohio": return "OH";
+				case "Oklahoma": return "OK";
+				case "Oregon": return "OR";
+				case "Pennsylvania": return "PA";
+				case "Rhode Island": return "RI";
+				case "South Carolina": return "SC";
+				case "South Dakota": return "SD";
+				case "Tennessee": return "TN";
+				case "Texas": return "TX";
+				case "Utah": return "UT";
+				case "Vermont": return "VT";
+				case "Virginia": return "VA";
+				case "Washington": return "WA";
+				case "West Virginia": return "WV";
+				case "Wisconsin": return "WI";
+				case "Wyoming": return "WY";
+			}
+}
+    </script>
 </body>

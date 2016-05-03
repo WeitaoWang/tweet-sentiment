@@ -61,7 +61,6 @@ var states = [
 var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
 for(var i = 0; i < states.length; i ++) {
 	for(var j = 0; j < candidates.length; j ++) {
-		console.log("First");
 		getTweetsOfStateOfCandidate(states[i].stateName, candidates[j], function(data) {
 			if(data) {
 				handleSentimentScore(data);
@@ -72,7 +71,6 @@ for(var i = 0; i < states.length; i ++) {
 for(var i = 0; i < dates.length; i ++) {
 	for(var j = 0; j < states.length; j ++) {
 		for(var m = 0; m < candidates.length; m ++) {
-			console.log("Second");
 			getTweetsDaily(dates[i], states[j].stateName, candidates[m], function(data) {
 				if(data) {
 					handleDaily(data);
@@ -81,7 +79,6 @@ for(var i = 0; i < dates.length; i ++) {
 		}
 	}
 }
-
 function getTweetsDaily(date, stateName, candidateName, callback) {
 	Tweet.find({state: stateName, candidates: candidateName, created_at: date}).
 		exec(function(err, tweets) {
@@ -107,7 +104,6 @@ function handleDaily(tweets) {
 	//get dayNum
 	var day = tweets[0].created_at.split("-");
 	dayNum = parseInt(day[1]) - 10 + 1;
-	console.log(dayNum);
 
 	for(var tweetIndex = 0; tweetIndex < amount; tweetIndex ++) {
 		if(tweets[tweetIndex].sentiment.score > 0) {
@@ -176,9 +172,6 @@ function handleDaily(tweets) {
 	}
 
 }
-
-
-
 
 function getTweetsOfStateOfCandidate(stateName, candidateName, callback) {
 	Tweet.find({state : stateName, candidates : candidateName}).

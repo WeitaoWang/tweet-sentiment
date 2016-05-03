@@ -3,24 +3,83 @@
 		<title>Tweet</title>
 	</head>
 	<body>
+		<style>
+			body {
+				margin: 0px;
+				font-family: "Arial";
+			}
+			.listItem {
+				list-style: none;
+				padding-left: 0px;
+				margin-left: 0px;
+			}
+            h3 {
+                font: bold 10px/1.5 Helvetica, Verdana, sans-serif;
+                margin: 5 0 0 0;
+            }
+			ul {
+				width: 200px;
+				height: 400px;
+                padding-left: 5px;
+				overflow: scroll;
+			}
+            .listItem p {
+                margin: 0 0 5 0;
+                border-bottom: 1px solid black;
+                padding-top: 5px;
+                overflow: auto;
+            }
+            .listItem:hover {
+                background: #eee;
+                cursor: pointer;
+            }
+		</style>
 		<input id="tweet" type="text"/>
+		<div>
+			<ul id="listChart"></ul>
+		</div>
 	</body>
     <script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script>
-        var host = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+		var list = d3.select("#listChart");
+		var redSaturation = ["#F0F0F0","#FFD7D7","#FF8788","#FF1011"],
+            blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
+		var positiveDegree = [0, 1.5, 3, 10],
+            negativeDegree = [-10, -5, -3, 0];
+		var positiveColor = function(v) {
+		    if(v == positiveDegree[0]) return redSaturation[0];
+		    if(v < positiveDegree[1]) return redSaturation[1];
+		    if(v < positiveDegree[2]) return redSaturation[2];
+		    if(v < positiveDegree[3]) return redSaturation[3];
+		}
+        var negativeColor = function(v) {
+            if(v == negativeDegree[3]) return blueSaturation[3];
+            if(v > negativeDegree[2]) return blueSaturation[2];
+            if(v > negativeDegree[1]) return blueSaturation[1];
+            if(v > negativeDegree[0]) return blueSaturation[0];
+        }
+		var tweets = [];
 		socket = io.connect();
 		socket.on('tweet', function(data) {
 			$("#tweet").val(data.text);
 			console.log("plz show me");
-			console.log(data.text);
+			console.log(data);
+			tweets.push(data)
+			var listItem = list.selectAll("li")
+				.data(tweets)
+				.enter()
+                .append("li")
+				.attr("class", "listItem")
+            listItem.append("h3")
+                .style("font", "bold 10px/1.5 Menlo, sans-serif")
+                .text(function(d) { return d.candidates});
+            listItem.append("p")
+				.style("background-color", function(d) { return d.sentiment.score > 0 ? positiveColor(d.sentiment.score) : negativeColor;})
+				.style("font-size", "10")
+				.text(function(d) { return d.text});
+            
 		}); 
 	</script>
-    <script>
-    
-        d3.json("/sentimentResult", function(error, data) {
-            console.log(data);
-        });
-    </script>
 </html>
