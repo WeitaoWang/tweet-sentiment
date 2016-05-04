@@ -35,7 +35,7 @@ io.on('connection', function(socket) {
 	console.log("socket connection is on");
 	stream(function(data) {
         console.log("streaming");
-		socket.emit('tweet', data);
+		socket.broadcast.emit('tweet', data);
 	});
 });
 
