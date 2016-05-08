@@ -147,7 +147,7 @@
                 border: 2px outset #ccc;
                 border-radius: 10px;
                 visibility: hidden;
-                width: 600px;
+                width: 700px;
                 height: 400px;
             }
             #tooltip header {
@@ -177,13 +177,23 @@
                 float: left;
                 border-right: 2px solid #e2e2e2;
             }
+            #nestedContent #nestedLineSVG {
+                width: 560;
+                float: left;
+            }
             .nestedXAxis,.nestedYAxis {
-                font: 10px sans-serif;
+                font: 10px Menlo, sans-serif;
             }
             .nestedXAxis,.nestedYAxis path,
             .nestedXAxis,.nestedYAxis line {
                 fill: none;
                 stroke: #000;
+            }
+            /*lineChart*/
+            .line {
+                fill: none;
+                stroke: steelblue;
+                stroke-width: 1.5px;
             }
 		</style>
 		<!--<input id="tweet" type="text"/>-->
@@ -257,6 +267,7 @@
                 </header>
                 <div id="nestedContent">
                     <div id="nestedBarSVG"></div>
+                    <div id="nestedLineSVG"></div>
                 </div>
             </div>
         </div>	
@@ -376,11 +387,14 @@
         }
 
         var _states,
-            _stateWinner;
+            _stateWinner,
+            _dailyResult;
         
         var nodesCollection = [];
 
-        var curSentiment = "Positive";
+        var curSentiment = "Positive",
+            curCandidate = "Donald Trump",
+            curState = "New York";
 
         var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
         var republican = ["Donald Trump", "Ted Cruz"];
@@ -451,7 +465,7 @@
                     .attr("width", "100%")
                     .attr("height", "50%")
         
-        function render(states, curSentiment) {
+        function render(states, curCandidate, curState, curSentiment) {
             for(var n = 0; n < 4; n ++) {// four candidates
               var nodes = states
                 .filter(function(d) { return d.candidates == candidates[n]; })
@@ -519,6 +533,8 @@
                     d3.select(this).style("stroke", undefined);
                 })
                 .on("click", function(d) {
+                    curCandidate = d.candidate;
+                    curState = d.state;
                     showToolTip(d);
                 });
 
@@ -588,15 +604,19 @@
         }
         function showToolTip(data) {
             d3.selectAll(".nestedBarSVG").remove();
+            d3.selectAll(".nestedLineSVG").remove();
             $("#nestedTitle").html("<font size='3'>" + data.candidate + " in " + data.state + "</font>");
             d3.select("#tooltip").style({
                 visibility: "visible",
-                top: "561px",
-                left: "546px",
+                top: "461px",
+                left: "500px",
                 opacity: 0.9,
                 background: "#fff"
             });
             renderNestedBarChart(data);
+            curCandidate = data.candidate;
+            curState = data.state;
+            renderNestedLineChart();
         }
         function getFontColor(state, candidate) {
             for(var m = 0; m < _stateWinner.length; m ++) {
@@ -670,6 +690,60 @@
                         case "West Virginia": return "WV";
                         case "Wisconsin": return "WI";
                         case "Wyoming": return "WY";
+                    }
+        }
+        function returnFullState(abbrName) {
+            switch(abbrName) {
+                case "AL": return "Alabama";
+				case "AK": return "Alaska";
+				case "AZ": return "Arizona";
+				case "AR": return "Arkansas";
+				case "CA": return "California";
+				case "CO": return "Colorado";
+				case "CT": return "Connecticut";
+				case "DE": return "Delaware";
+				case "FL": return "Florida";
+				case "GA": return "Georgia";
+				case "HI": return "Hawaii";
+				case "ID": return "Idaho";
+				case "IL": return "Illinois";
+				case "IN": return "Indiana";
+				case "IA": return "Iowa";
+				case "KS": return "Kansas";
+				case "KY": return "Kentucky";
+				case "LA": return "Louisiana";
+				case "ME": return "Maine";
+				case "MD": return "Maryland";
+				case "MA": return "Massachusetts";
+				case "MI": return "Michigan";
+				case "MN": return "Minnesota";
+				case "MS": return "Mississippi";
+				case "MO": return "Missouri";
+				case "MT": return "Montana";
+				case "NE": return "Nebraska";
+				case "NV": return "Nevada";
+				case "NH": return "New Hampshire";
+				case "NJ": return "New Jersey";
+				case "NM": return "New Mexico";
+				case "NY": return "New York";
+				case "NC": return "North Carolina";
+				case "ND": return "North Dakota";
+				case "OH": return "Ohio";
+				case "OK": return "Oklahoma";
+				case "OR": return "Oregon";
+				case "PA": return "Pennsylvania";
+				case "RI": return "Rhode Island";
+				case "SC": return "South Carolina";
+				case "SD": return "South Dakota";
+				case "TN": return "Tennessee";
+				case "TX": return "Texas";
+				case "UT": return "Utah";
+				case "VT": return "Vermont";
+				case "VA": return "Virginia";
+				case "WA": return "Washington";
+				case "WV": return "West Virginia";
+				case "WI": return "Wisconsin";
+				case "WY": return "Wyoming";
                     }
         }
         function renderLegend() {
@@ -896,6 +970,64 @@
                     .attr("fill", "#08306B") 
                     .attr("opacity", 0.5)
         }
+        function renderNestedLineChart() {
+            var formatDate = d3.time.format("%m-%d-%Y");
+            var dr = _dailyResult.filter(function(d) {
+                return d.candidates === curCandidate && d.state === returnFullState(curState);
+            })
+            .map(function(d) {
+               var state = d.state,
+                   candidate = d.candidates,
+                   avgAvgScore = d.positiveAvgScore + d.negativeAvgScore,
+                   date = formatDate.parse(d.date),
+                   dayNum = d.dayNum;
+               return {
+                   state: state,
+                   candidate: candidate,
+                   avgAvgScore: avgAvgScore,
+                   date: date,
+                   dayNum: dayNum
+               };
+           });
+            var nestedLineXScale = d3.time.scale()
+                .range([0, 560])
+                .domain(d3.extent(dr, function(d) { return d.date;}));
+            var nestedLineYScale = d3.scale.linear()
+                .range([320, 0])
+                .domain(d3.extent(dr, function(d) { return d.avgAvgScore}));
+            var nestedLineXAxis = d3.svg.axis()
+                .scale(nestedLineXScale)
+                .orient("bottom");
+            var nestedLineYAxis = d3.svg.axis()
+                .scale(nestedLineYScale)
+                .orient("left");
+            var line = d3.svg.line()
+                .x(function(d) { return nestedLineXScale(d.date); })
+                .y(function(d) { return nestedLineYScale(d.avgAvgScore); })
+            var nestedLineSVG = d3.select("#nestedLineSVG").append("svg")
+                    .attr("class", "nestedLineSVG")
+                    .attr("width", 560)
+                    .attr("height", 350)
+                  .append("g")
+                    .attr("transform", "translate(33,10)")
+            nestedLineSVG.append("g")
+                .attr("class", "nestedXAxis")
+                .attr("transform", "translate(0," + 320 + ")")
+                .call(nestedLineXAxis);
+            nestedLineSVG.append("g")
+                .attr("class", "nestedYAxis")
+                .call(nestedLineYAxis)
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("avgAvgScore")
+            nestedLineSVG.append("path")
+                .datum(dr)
+                .attr("class", "line")
+                .attr("d",line);
+        }
         //http://tweet-sentiment-nyu.herokuapp.com/sentimentResult
         /*d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json", function(error, states) {
           if (error) throw error;
@@ -905,12 +1037,15 @@
         queue()
             .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
             .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/stateWinner.json")
+            .defer(d3.json,
+            "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdaily.json")
             .await(ready);
-        function ready(error, states, stateWinner) {
+        function ready(error, states, stateWinner, dailyResult) {
             if (error) throw error;
             _states = states;
             _stateWinner = stateWinner;
-            render(_states, curSentiment);
+            _dailyResult = dailyResult;
+            render(_states, curCandidate, curState, curSentiment);
         }
 </script>
 </html>

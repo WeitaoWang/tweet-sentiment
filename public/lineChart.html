@@ -3,9 +3,20 @@
 <title>HedgeDogVis</title>
 <style>
 
-circle {
-  fill: #eee;
+.nestedaxis path,
+.nestedaxis line {
+  fill: none;
   stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.nestedaxis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
   stroke-width: 1.5px;
 }
 
@@ -14,42 +25,36 @@ circle {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+        width = 470 - margin.left - margin.right,
+        height = 350 - margin.top - margin.bottom;
     
-    var formatDate = d3.time.format("%d-%b-%y"); // if wrong check format
+    var formatDate = d3.time.format("%m-%d-%Y"); // if wrong check format
+    var nestedLineXScale = d3.time.scale()
+        .range([0, 470]);
+    var nestedLineYScale = d3.scale.linear()
+        .range([300 -15, 0]);
     
-    var x = d3.time.scale()
-        .range([0, width]);
-    var y = d3.scale.linear()
-        .range([height, 0]);
-    
-    var xAxis = d3.svg.axis()
-        .scale(x)
+    var nestedLineXAxis = d3.svg.axis()
+        .scale(nestedLineXScale)
         .orient("bottom");
-    var yAxis = d3.svg.axis()
-        .scale(y)
+    var nestedLineYAxis = d3.svg.axis()
+        .scale(nestedLineYScale)
         .orient("left");
     
     var line = d3.svg.line()
-        .x(function(d) { return x(d.date); })
-        .y(function(d) { return y(d.avgAvgScore); })
+        .x(function(d) { return nestedLineXScale(d.date) + 15; })
+        .y(function(d) { return nestedLineYScale(d.avgAvgScore); })
     
-    var svg = d3.select("body").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-              .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
    function render(data) {
        var results = data.filter(function(d) {
-           return d.candidates === "Donald Trump" && d.state === "New York";
+           return d.candidates === "Ted Cruz" && d.state === "New York";
        })
        .map(function(d) {
            var state = d.state,
                candidate = d.candidates,
                avgAvgScore = d.positiveAvgScore + d.negativeAvgScore,
-               date = d.date,
+               date = formatDate.parse(d.date),
                dayNum = d.dayNum;
            return {
                state: state,
@@ -63,16 +68,26 @@ circle {
        renderLineChart(results);
    }
    function renderLineChart(data) {
-       x.domain(d3.extent(data, function(d) { return d.date;}));
-       y.domain(d3.extent(data, function(d) { return d.avgAvgScore}));
-       
+       nestedLineXScale.domain(d3.extent(data, function(d) { return d.date;}));
+       nestedLineYScale.domain(d3.extent(data, function(d) { return d.avgAvgScore}));
+       var zoom = d3.behavior.zoom()
+        .x(nestedLineXScale)
+        .y(nestedLineYScale).scaleExtent([1,1]).on("zoom", function() {
+            svg.select('.x.nestedaxis').call(nestedLineXAxis)
+        });
+        var svg = d3.select("body").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(39,10)")
+                    .call(zoom);
        svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .attr("class", "x nestedaxis")
+        .attr("transform", "translate(15," + 290 + ")")
+        .call(nestedLineXAxis);
        svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
+        .attr("class", "y nestedaxis")
+        .call(nestedLineYAxis)
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -85,15 +100,13 @@ circle {
         .attr("d",line);
    }
     
+    
     d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdaily.json",
            function(error, data) {
         if(error) {
             console.log(error);
         }
-        console.log(data);
-        console.log("hi");
         render(data);
-        console.log("bye");
     });
 </script>
 
