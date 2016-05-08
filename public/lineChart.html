@@ -62,18 +62,35 @@ circle {
        console.log(results);
        renderLineChart(results);
    }
-   function renderLineChart(results) {
+   function renderLineChart(data) {
        x.domain(d3.extent(data, function(d) { return d.date;}));
        y.domain(d3.extent(data, function(d) { return d.avgAvgScore}));
        
        svg.append("g")
         .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+       svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("avgAvgScore")
+       svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d",line);
    }
     
-    d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json",
+    d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdailies.json",
            function(error, data) {
         console.log(data);
+        console.log("hi");
         render(data);
+        console.log("bye");
     });
 </script>
 
