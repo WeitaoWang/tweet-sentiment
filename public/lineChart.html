@@ -85,8 +85,11 @@ circle {
         .attr("d",line);
    }
     
-    d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdailies.json",
+    d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdaily.json",
            function(error, data) {
+        if(error) {
+            console.log(error);
+        }
         console.log(data);
         console.log("hi");
         render(data);

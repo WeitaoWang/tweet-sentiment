@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 	SentimentResultDaily = require('./sentimentResultDaily'),
 	db = require('./dbConnection');
 
-var dates = ["4-21-2016","4-22-2016"];
+var dates = ["4-10-2016","4-11-2016","4-12-2016","4-13-2016","4-14-2016","4-15-2016","4-16-2016","4-17-2016","4-18-2016","4-19-2016","4-20-2016","4-21-2016","4-22-2016"];
 var states = [
 { "stateName":"Alabama", "coordinates":[-86.766233,33.001471]}, 
 { "stateName":"Alaska", "coordinates":[-148.716968,61.288254]}, 
@@ -68,6 +68,7 @@ for(var i = 0; i < states.length; i ++) {
 		});
 	}
 }
+/*
 for(var i = 0; i < dates.length; i ++) {
 	for(var j = 0; j < states.length; j ++) {
 		for(var m = 0; m < candidates.length; m ++) {
@@ -172,7 +173,7 @@ function handleDaily(tweets) {
 	}
 
 }
-
+*/
 function getTweetsOfStateOfCandidate(stateName, candidateName, callback) {
 	Tweet.find({state : stateName, candidates : candidateName}).
 		exec(function(err, tweets) {
