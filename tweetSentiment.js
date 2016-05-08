@@ -5,6 +5,7 @@ var io = require('socket.io')(server);
 var stream = require('./stream');
 var historyTweets = require('./historicalTweet');
 var historySentimentResult = require('./historicalSentimentResult');
+var historySentimentResultDaily = require('./historicalSentimentResultDaily')
 app.set('port', process.env.PORT || '3000');
 server.listen(app.get('port'), function() {
     
@@ -47,6 +48,11 @@ io.on('connection', function(socket) {
 });*/
 app.get('/history', function(req, res) {
 	historyTweets(function(data) {
+		res.json(data);
+	});
+});
+app.get('/daily', function(req, res) {
+	historySentimentResultDaily(function(data) {
 		res.json(data);
 	});
 });
