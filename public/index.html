@@ -195,6 +195,9 @@
                 stroke: steelblue;
                 stroke-width: 1.5px;
             }
+            .svg0,.svg1,.svg2,.svg3 {
+                background: #fff;
+            }
 		</style>
 		<!--<input id="tweet" type="text"/>-->
         <div id="header">
@@ -276,6 +279,7 @@
     <script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://riccardoscalco.github.io/textures/textures.min.js"></script>
 	<script>
 		var list = d3.select("#listChart");
 		var redSaturation = ["#F0F0F0","#FFD7D7","#FF8788","#FF1011"],
@@ -426,7 +430,7 @@
             }
         }
         var redSaturation = ["#FDD2AA","#F7976B","#F26123","#B7161E"];
-        var blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
+        var blueSaturation = ["#1946F1","#1E8CFF","#76BBFB","#CEE6FE"];
         var positiveDegree = [0, 1.5, 3, 10],
             negativeDegree = [-10, -5, -3, 0];
         var positiveColor = function(v) {
@@ -518,11 +522,7 @@
                 .enter().append("circle")
                   .attr("r", function(d) { return d.r; })
                   .style("fill", function(d) { 
-                      if(curSentiment === "Average") {
-                          return color(d.avgAvgScore);
-                      }else {
-                          return curSentiment === "Positive" ? color(d.positiveAvgScore) : color(d.negativeAvgScore);
-                      }
+                      return getFillTextures(n, d);
                   })
                 .on('mouseover', function(d, i) {
                     d3.select(this)
@@ -544,11 +544,9 @@
                     .attr("class", "circleText")
                     .attr("text-anchor", "middle")
                     .text(function(d) { return d.state })
-                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) })
+                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(10) })
                     .attr("font-weight", 900)
-                    .attr("fill", function(d) {
-                        return getFontColor(d.state, d.candidate);
-                    });
+                    .attr("fill", "#fff")
             
           function tick(e) {
             node.each(gravity(e.alpha * .1))
@@ -618,25 +616,76 @@
             curState = data.state;
             renderNestedLineChart();
         }
-        function getFontColor(state, candidate) {
+        
+        function getFillColor(data) {
+            if(curSentiment === "Average") {
+                return color(data.avgAvgScore);
+            }else {
+                return curSentiment === "Positive" ? color(data.positiveAvgScore) : color(data.negativeAvgScore);
+            }
+        }
+        function getFillTextures(n, data) {
+            var fillTextures,
+                fillColor;
+            
             for(var m = 0; m < _stateWinner.length; m ++) {
-                if(state == _stateWinner[m].abbreviation) {
-                    if(republican.indexOf(candidate) !== -1) {
+                if(data.state == _stateWinner[m].abbreviation) {
+                    if(republican.indexOf(data.candidate) !== -1) {
                         if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
-                            return candidate == _stateWinner[m].Republican ? "#fff" : "#000";
+                            if(data.candidate == _stateWinner[m].Republican) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
                         }else {
-                            return "#ccc";
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
                         }
                     }else {
                         if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
-                            return candidate == _stateWinner[m].Democrat ? "#fff" : "#000";
+                            if(data.candidate == _stateWinner[m].Democrat) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .stroke("#000")
+                                        .background(getFillColor(data))
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
                         }else {
-                            return "#ccc";
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
                         }
                     }
                     break;
                 }
             }
+            svgs[n].call(fillTextures);
+            return fillTextures.url();
         }
         function getAbbr(stateName) {
             switch(stateName) {
@@ -833,18 +882,40 @@
                 .text(curSentiment + " average Score");
         }
         function renderFontColorLegend() {
-            var fontColor = ["#fff", "#000", "#ccc"];
             var legend = ["Won", "Loss", "Not Yet"];
+            var t1 = textures.circles()
+                        .radius(1)
+                        .thicker()
+                        .background(scolor)
+                        .stroke("#000")
+                        .strokeWidth(1);
+            var t2 = textures.paths()
+                        .d("crosses")
+                        .background(scolor)
+                        .stroke("#000")
+                        .lighter()
+                        .thicker();
+            var t3 = textures.lines()
+                        .thicker()
+                        .lighter()
+                        .orientation("vertical")
+                        .stroke("#000")
+                        .background(scolor);
+            var textureC = [t1, t2, t3]
+            function scolor() {
+                return curSentiment === "Positive" ? color(2) : color(-2);
+            }
             for(var i = 0; i < 3; i ++) {
                 var fcSvg = d3.select("#fontColorLegend").append("svg")
                         .attr("class", "fcSvg")
                         .attr("width", "33%")
                         .attr("height", "100%")
+                fcSvg.call(textureC[i])
                 var g = fcSvg.append("g")
                         .attr("transform", "translate(" + 20 + "," + 20 + ")");
                 g.append("circle")
                         .attr("r", 20)
-                        .style("fill", "#F26123");
+                        .style("fill", textureC[i].url());
                 g.append("text")
                         .attr("text-anchor", "middle")
                         .attr("x", 3)
@@ -852,7 +923,7 @@
                         .text("NY")
                         .attr("font-size", 15)
                         .attr("font-weight", 900)
-                        .attr("fill", fontColor[i])
+                        .attr("fill", "#fff")
                 g.append("text")
                         .text(legend[i])
                         .attr("x", 30)
