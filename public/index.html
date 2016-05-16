@@ -417,7 +417,7 @@
             .domain([0, 300])
             .range([10, 100]);
         var triangleSize = d3.scale.linear()
-            .domain([0, 300])
+            .domain([0, 200])
             .range([200, 1000]);
         //tick format
         var formatPercent = d3.format(".0%"),
@@ -538,7 +538,7 @@
                   .data(wonNodes)
                 .enter().append("path")
                   .attr("class", "wonpoint")
-                  .attr("d", d3.svg.symbol().type("triangle-up").size(function(d){ return triangleSize(100); }))
+                  .attr("d", d3.svg.symbol().type("triangle-up").size(function(d){ return triangleSize(d.value); }))
                   .style("fill", function(d) { 
                       return getFillColor(d);
                   })
@@ -560,7 +560,7 @@
                   .data(lossNodes)
                 .enter().append("path")
                   .attr("class", "losspoint")
-                  .attr("d", d3.svg.symbol().type("triangle-down").size(function(d){ return triangleSize(100); }))
+                  .attr("d", d3.svg.symbol().type("triangle-down").size(function(d){ return triangleSize(d.value); }))
                   .style("fill", function(d) { 
                       return getFillColor(d);
                   })
@@ -921,7 +921,7 @@
                         .attr("width", "33%")
                         .attr("height", "100%")
                 var g = fcSvg.append("g")
-                        .attr("transform", "translate(" + 20 + "," + 20 + ")");
+                        .attr("transform", "translate(" + 25 + "," + 20 + ")");
                 if(i == 0) {
                     g.append("path")
                       .attr("class", "wonpoint")
