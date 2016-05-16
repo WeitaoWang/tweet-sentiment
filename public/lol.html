@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>LOL</title>
+		<title>Visulaization Project</title>
 	</head>
 	<body>
 		<style>
@@ -42,7 +42,7 @@
                 border: 1px solid #e2e2e2;
                 border-radius: 3px;
             }
-            #gramOption {
+            /*#gramOption {
                 border-bottom: 1px solid #d7d7d7;
                 color: #666;
                 padding: 7px 10px 4px;
@@ -58,7 +58,7 @@
                 outline: none;
                 display:inline;
                 list-style: none;
-            }
+            }*/
             #legendANDOption {
                 border-bottom: 1px solid #d7d7d7;
                 color: #666;
@@ -147,7 +147,7 @@
                 border: 2px outset #ccc;
                 border-radius: 10px;
                 visibility: hidden;
-                width: 600px;
+                width: 700px;
                 height: 400px;
             }
             #tooltip header {
@@ -177,13 +177,26 @@
                 float: left;
                 border-right: 2px solid #e2e2e2;
             }
+            #nestedContent #nestedLineSVG {
+                width: 560;
+                float: left;
+            }
             .nestedXAxis,.nestedYAxis {
-                font: 10px sans-serif;
+                font: 10px Menlo, sans-serif;
             }
             .nestedXAxis,.nestedYAxis path,
             .nestedXAxis,.nestedYAxis line {
                 fill: none;
                 stroke: #000;
+            }
+            /*lineChart*/
+            .line {
+                fill: none;
+                stroke: steelblue;
+                stroke-width: 1.5px;
+            }
+            .svg0,.svg1,.svg2,.svg3 {
+                background: #fff;
             }
 		</style>
 		<!--<input id="tweet" type="text"/>-->
@@ -202,12 +215,12 @@
                 </div>      
             </div>
             <div id="mainContent">
-                <div id="gramOption">
+                <!--<div id="gramOption">
                     <ul class="gramOptionList">
                         <li><a>DorlingCartogram</a></li>
                         <li><a>Choropleth</a></li>
                     </ul>
-                </div>
+                </div>-->
                 <div id="legendANDOption">
                     <div id="legend">
                     </div>
@@ -257,6 +270,7 @@
                 </header>
                 <div id="nestedContent">
                     <div id="nestedBarSVG"></div>
+                    <div id="nestedLineSVG"></div>
                 </div>
             </div>
         </div>	
@@ -265,6 +279,7 @@
     <script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://riccardoscalco.github.io/textures/textures.min.js"></script>
 	<script>
 		var list = d3.select("#listChart");
 		var redSaturation = ["#F0F0F0","#FFD7D7","#FF8788","#FF1011"],
@@ -376,11 +391,14 @@
         }
 
         var _states,
-            _stateWinner;
+            _stateWinner,
+            _dailyResult;
         
         var nodesCollection = [];
 
-        var curSentiment = "Positive";
+        var curSentiment = "Positive",
+            curCandidate = "Donald Trump",
+            curState = "New York";
 
         var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
         var republican = ["Donald Trump", "Ted Cruz"];
@@ -412,7 +430,7 @@
             }
         }
         var redSaturation = ["#FDD2AA","#F7976B","#F26123","#B7161E"];
-        var blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
+        var blueSaturation = ["#1946F1","#1E8CFF","#76BBFB","#CEE6FE"];
         var positiveDegree = [0, 1.5, 3, 10],
             negativeDegree = [-10, -5, -3, 0];
         var positiveColor = function(v) {
@@ -451,7 +469,7 @@
                     .attr("width", "100%")
                     .attr("height", "50%")
         
-        function render(states, curSentiment) {
+        function render(states, curCandidate, curState, curSentiment) {
             for(var n = 0; n < 4; n ++) {// four candidates
               var nodes = states
                 .filter(function(d) { return d.candidates == candidates[n]; })
@@ -462,7 +480,7 @@
                         candidate = d.candidates,
                         positiveAvgScore = d.positiveAvgScore,
                         negativeAvgScore = d.negativeAvgScore,
-                        avgAvgScore = (d.positiveAvgScore + d.negativeAvgScore) / 2,
+                        avgAvgScore = (d.positiveAvgScore + d.negativeAvgScore),
                         positivePercent = d.positivePercent,
                         negativePercent = d.negativePercent;//for average layer
                     return {
@@ -504,11 +522,7 @@
                 .enter().append("circle")
                   .attr("r", function(d) { return d.r; })
                   .style("fill", function(d) { 
-                      if(curSentiment === "Average") {
-                          return color(d.avgAvgScore);
-                      }else {
-                          return curSentiment === "Positive" ? color(d.positiveAvgScore) : color(d.negativeAvgScore);
-                      }
+                      return getFillTextures(n, d);
                   })
                 .on('mouseover', function(d, i) {
                     d3.select(this)
@@ -519,6 +533,8 @@
                     d3.select(this).style("stroke", undefined);
                 })
                 .on("click", function(d) {
+                    curCandidate = d.candidate;
+                    curState = d.state;
                     showToolTip(d);
                 });
 
@@ -528,11 +544,9 @@
                     .attr("class", "circleText")
                     .attr("text-anchor", "middle")
                     .text(function(d) { return d.state })
-                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) })
+                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(10) })
                     .attr("font-weight", 900)
-                    .attr("fill", function(d) {
-                        return getFontColor(d.state, d.candidate);
-                    });
+                    .attr("fill", "#fff")
             
           function tick(e) {
             node.each(gravity(e.alpha * .1))
@@ -588,35 +602,90 @@
         }
         function showToolTip(data) {
             d3.selectAll(".nestedBarSVG").remove();
+            d3.selectAll(".nestedLineSVG").remove();
             $("#nestedTitle").html("<font size='3'>" + data.candidate + " in " + data.state + "</font>");
             d3.select("#tooltip").style({
                 visibility: "visible",
-                top: "561px",
-                left: "546px",
+                top: "461px",
+                left: "500px",
                 opacity: 0.9,
                 background: "#fff"
             });
             renderNestedBarChart(data);
+            curCandidate = data.candidate;
+            curState = data.state;
+            renderNestedLineChart();
         }
-        function getFontColor(state, candidate) {
+        
+        function getFillColor(data) {
+            if(curSentiment === "Average") {
+                return color(data.avgAvgScore);
+            }else {
+                return curSentiment === "Positive" ? color(data.positiveAvgScore) : color(data.negativeAvgScore);
+            }
+        }
+        function getFillTextures(n, data) {
+            var fillTextures,
+                fillColor;
+            
             for(var m = 0; m < _stateWinner.length; m ++) {
-                if(state == _stateWinner[m].abbreviation) {
-                    if(republican.indexOf(candidate) !== -1) {
+                if(data.state == _stateWinner[m].abbreviation) {
+                    if(republican.indexOf(data.candidate) !== -1) {
                         if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
-                            return candidate == _stateWinner[m].Republican ? "#fff" : "#000";
+                            if(data.candidate == _stateWinner[m].Republican) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
                         }else {
-                            return "#ccc";
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
                         }
                     }else {
                         if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
-                            return candidate == _stateWinner[m].Democrat ? "#fff" : "#000";
+                            if(data.candidate == _stateWinner[m].Democrat) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .stroke("#000")
+                                        .background(getFillColor(data))
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
                         }else {
-                            return "#ccc";
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
                         }
                     }
                     break;
                 }
             }
+            svgs[n].call(fillTextures);
+            return fillTextures.url();
         }
         function getAbbr(stateName) {
             switch(stateName) {
@@ -670,6 +739,60 @@
                         case "West Virginia": return "WV";
                         case "Wisconsin": return "WI";
                         case "Wyoming": return "WY";
+                    }
+        }
+        function returnFullState(abbrName) {
+            switch(abbrName) {
+                case "AL": return "Alabama";
+				case "AK": return "Alaska";
+				case "AZ": return "Arizona";
+				case "AR": return "Arkansas";
+				case "CA": return "California";
+				case "CO": return "Colorado";
+				case "CT": return "Connecticut";
+				case "DE": return "Delaware";
+				case "FL": return "Florida";
+				case "GA": return "Georgia";
+				case "HI": return "Hawaii";
+				case "ID": return "Idaho";
+				case "IL": return "Illinois";
+				case "IN": return "Indiana";
+				case "IA": return "Iowa";
+				case "KS": return "Kansas";
+				case "KY": return "Kentucky";
+				case "LA": return "Louisiana";
+				case "ME": return "Maine";
+				case "MD": return "Maryland";
+				case "MA": return "Massachusetts";
+				case "MI": return "Michigan";
+				case "MN": return "Minnesota";
+				case "MS": return "Mississippi";
+				case "MO": return "Missouri";
+				case "MT": return "Montana";
+				case "NE": return "Nebraska";
+				case "NV": return "Nevada";
+				case "NH": return "New Hampshire";
+				case "NJ": return "New Jersey";
+				case "NM": return "New Mexico";
+				case "NY": return "New York";
+				case "NC": return "North Carolina";
+				case "ND": return "North Dakota";
+				case "OH": return "Ohio";
+				case "OK": return "Oklahoma";
+				case "OR": return "Oregon";
+				case "PA": return "Pennsylvania";
+				case "RI": return "Rhode Island";
+				case "SC": return "South Carolina";
+				case "SD": return "South Dakota";
+				case "TN": return "Tennessee";
+				case "TX": return "Texas";
+				case "UT": return "Utah";
+				case "VT": return "Vermont";
+				case "VA": return "Virginia";
+				case "WA": return "Washington";
+				case "WV": return "West Virginia";
+				case "WI": return "Wisconsin";
+				case "WY": return "Wyoming";
                     }
         }
         function renderLegend() {
@@ -759,18 +882,40 @@
                 .text(curSentiment + " average Score");
         }
         function renderFontColorLegend() {
-            var fontColor = ["#fff", "#000", "#ccc"];
-            var legend = ["Winner", "Loser", "Not Yet"];
+            var legend = ["Won", "Loss", "Not Yet"];
+            var t1 = textures.circles()
+                        .radius(1)
+                        .thicker()
+                        .background(scolor)
+                        .stroke("#000")
+                        .strokeWidth(1);
+            var t2 = textures.paths()
+                        .d("crosses")
+                        .background(scolor)
+                        .stroke("#000")
+                        .lighter()
+                        .thicker();
+            var t3 = textures.lines()
+                        .thicker()
+                        .lighter()
+                        .orientation("vertical")
+                        .stroke("#000")
+                        .background(scolor);
+            var textureC = [t1, t2, t3]
+            function scolor() {
+                return curSentiment === "Positive" ? color(2) : color(-2);
+            }
             for(var i = 0; i < 3; i ++) {
                 var fcSvg = d3.select("#fontColorLegend").append("svg")
                         .attr("class", "fcSvg")
                         .attr("width", "33%")
                         .attr("height", "100%")
+                fcSvg.call(textureC[i])
                 var g = fcSvg.append("g")
                         .attr("transform", "translate(" + 20 + "," + 20 + ")");
                 g.append("circle")
                         .attr("r", 20)
-                        .style("fill", "#F26123");
+                        .style("fill", textureC[i].url());
                 g.append("text")
                         .attr("text-anchor", "middle")
                         .attr("x", 3)
@@ -778,7 +923,7 @@
                         .text("NY")
                         .attr("font-size", 15)
                         .attr("font-weight", 900)
-                        .attr("fill", fontColor[i])
+                        .attr("fill", "#fff")
                 g.append("text")
                         .text(legend[i])
                         .attr("x", 30)
@@ -895,7 +1040,64 @@
                     })
                     .attr("fill", "#08306B") 
                     .attr("opacity", 0.5)
-            
+        }
+        function renderNestedLineChart() {
+            var formatDate = d3.time.format("%m-%d-%Y");
+            var dr = _dailyResult.filter(function(d) {
+                return d.candidates === curCandidate && d.state === returnFullState(curState);
+            })
+            .map(function(d) {
+               var state = d.state,
+                   candidate = d.candidates,
+                   avgAvgScore = d.positiveAvgScore + d.negativeAvgScore,
+                   date = formatDate.parse(d.date),
+                   dayNum = d.dayNum;
+               return {
+                   state: state,
+                   candidate: candidate,
+                   avgAvgScore: avgAvgScore,
+                   date: date,
+                   dayNum: dayNum
+               };
+           });
+            var nestedLineXScale = d3.time.scale()
+                .range([0, 560])
+                .domain(d3.extent(dr, function(d) { return d.date;}));
+            var nestedLineYScale = d3.scale.linear()
+                .range([320, 0])
+                .domain(d3.extent(dr, function(d) { return d.avgAvgScore}));
+            var nestedLineXAxis = d3.svg.axis()
+                .scale(nestedLineXScale)
+                .orient("bottom");
+            var nestedLineYAxis = d3.svg.axis()
+                .scale(nestedLineYScale)
+                .orient("left");
+            var line = d3.svg.line()
+                .x(function(d) { return nestedLineXScale(d.date); })
+                .y(function(d) { return nestedLineYScale(d.avgAvgScore); })
+            var nestedLineSVG = d3.select("#nestedLineSVG").append("svg")
+                    .attr("class", "nestedLineSVG")
+                    .attr("width", 560)
+                    .attr("height", 350)
+                  .append("g")
+                    .attr("transform", "translate(33,10)")
+            nestedLineSVG.append("g")
+                .attr("class", "nestedXAxis")
+                .attr("transform", "translate(0," + 320 + ")")
+                .call(nestedLineXAxis);
+            nestedLineSVG.append("g")
+                .attr("class", "nestedYAxis")
+                .call(nestedLineYAxis)
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("TotalAverageScore")
+            nestedLineSVG.append("path")
+                .datum(dr)
+                .attr("class", "line")
+                .attr("d",line);
         }
         //http://tweet-sentiment-nyu.herokuapp.com/sentimentResult
         /*d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json", function(error, states) {
@@ -906,12 +1108,15 @@
         queue()
             .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
             .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/stateWinner.json")
+            .defer(d3.json,
+            "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdaily.json")
             .await(ready);
-        function ready(error, states, stateWinner) {
+        function ready(error, states, stateWinner, dailyResult) {
             if (error) throw error;
             _states = states;
             _stateWinner = stateWinner;
-            render(_states, curSentiment);
+            _dailyResult = dailyResult;
+            render(_states, curCandidate, curState, curSentiment);
         }
 </script>
 </html>

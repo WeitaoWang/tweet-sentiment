@@ -415,8 +415,10 @@
 
         var size = d3.scale.linear()
             .domain([0, 300])
-            .range([10, 250]);
-
+            .range([10, 100]);
+        var triangleSize = d3.scale.linear()
+            .domain([0, 300])
+            .range([200, 1000]);
         //tick format
         var formatPercent = d3.format(".0%"),
             formatNumber = d3.format(".0f");
@@ -482,7 +484,8 @@
                         negativeAvgScore = d.negativeAvgScore,
                         avgAvgScore = (d.positiveAvgScore + d.negativeAvgScore),
                         positivePercent = d.positivePercent,
-                        negativePercent = d.negativePercent;//for average layer
+                        negativePercent = d.negativePercent,//for average layer
+                        isWonFlag = isWon(getAbbr(d.state), d.candidates);
                     return {
                         x: point[0], y: point[1],
                         x0: point[0], y0: point[1],
@@ -494,22 +497,23 @@
                         negativeAvgScore: negativeAvgScore,
                         avgAvgScore: avgAvgScore,
                         positivePercent: positivePercent,
-                        negativePercent: negativePercent
+                        negativePercent: negativePercent,
+                        isWonFlag: isWonFlag
                     };
                   });
               nodesCollection.push(nodes);
             }
             for(var n = 0; n < 4; n ++) {
-                renderDorling(nodesCollection[n], n);
+                renderIcon(nodesCollection[n], n);
             }
             renderLegend();
             renderFontColorLegend();
-            renderBubbleSizeLegend();
+            //renderBubbleSizeLegend();
         }
-        function renderDorling(nodes, n) {
+        function renderIcon(nodes, n) {
             var g = svgs[n].append("g")
                     .attr("transform", "translate(" + -170 + "," + -60 + ")");
-
+            
             var force = d3.layout.force()
                     .charge(0)
                     .gravity(0)
@@ -517,27 +521,83 @@
                     .nodes(nodes)
                     .on("tick", tick)
                     .start();
-            var node = g.selectAll("circle")
-                  .data(nodes)
+            
+            var wonNodes = nodes
+                .filter(function(d) { return d.isWonFlag == 1; });
+            var lossNodes = nodes
+                .filter(function(d) { return d.isWonFlag == 0; });
+            var nyetNodes = nodes
+                .filter(function(d) { return d.isWonFlag == -1; });
+            
+            if(n == 2) {
+                console.log(wonNodes);
+                console.log(lossNodes);
+                console.log(nyetNodes);
+            }
+             var nwon = g.selectAll(".wonpoint")
+                  .data(wonNodes)
+                .enter().append("path")
+                  .attr("class", "wonpoint")
+                  .attr("d", d3.svg.symbol().type("triangle-up").size(function(d){ return triangleSize(100); }))
+                  .style("fill", function(d) { 
+                      return getFillColor(d);
+                  })
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
+            
+            var nloss = g.selectAll(".losspoint")
+                  .data(lossNodes)
+                .enter().append("path")
+                  .attr("class", "losspoint")
+                  .attr("d", d3.svg.symbol().type("triangle-down").size(function(d){ return triangleSize(100); }))
+                  .style("fill", function(d) { 
+                      return getFillColor(d);
+                  })
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
+            var nnyet = g.selectAll(".dot")
+                  .data(nyetNodes)
                 .enter().append("circle")
+                  .attr("class", "dot")
                   .attr("r", function(d) { return d.r; })
                   .style("fill", function(d) { 
-                      return getFillTextures(n, d);
+                      return getFillColor(d);
                   })
-                .on('mouseover', function(d, i) {
-                    d3.select(this)
-                        .style("stroke", "black")
-                        .style("stroke-width", 2);
-                })
-                .on('mouseout', function(d, i) {
-                    d3.select(this).style("stroke", undefined);
-                })
-                .on("click", function(d) {
-                    curCandidate = d.candidate;
-                    curState = d.state;
-                    showToolTip(d);
-                });
-
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
             var circleText = g.selectAll("text")
                     .data(nodes)
                     .enter().append("text")
@@ -547,16 +607,21 @@
                     .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(10) })
                     .attr("font-weight", 900)
                     .attr("fill", "#fff")
-            
           function tick(e) {
-            node.each(gravity(e.alpha * .1))
-                .each(collide(.5))
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
-            circleText.each(gravity(e.alpha * .1))
-                .each(collide(.5))
-                .attr("x", function(d) { return d.x; })
-                .attr("y", function(d) { return d.y; });
+                nwon.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                nloss.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                nnyet.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; });
+                circleText.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("x", function(d) { return d.x; })
+                    .attr("y", function(d) { return d.y; });
           }
 
           function gravity(k) {
@@ -616,76 +681,40 @@
             curState = data.state;
             renderNestedLineChart();
         }
-        
+        function isWon(state, candidate) {
+            for(var m = 0; m < _stateWinner.length; m ++) {
+                if(state == _stateWinner[m].abbreviation) {
+                    if(republican.indexOf(candidate) !== -1) {
+                        if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
+                            if(candidate == _stateWinner[m].Republican) {
+                                return 1;
+                            }else {
+                                return 0;
+                            }
+                        }else {
+                            return -1;
+                        }
+                    }else {
+                        if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
+                            if(candidate == _stateWinner[m].Democrat) {
+                                return 1;
+                            }else {
+                                return 0;
+                            }
+                        }else {
+                            return -1;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         function getFillColor(data) {
             if(curSentiment === "Average") {
                 return color(data.avgAvgScore);
             }else {
                 return curSentiment === "Positive" ? color(data.positiveAvgScore) : color(data.negativeAvgScore);
             }
-        }
-        function getFillTextures(n, data) {
-            var fillTextures,
-                fillColor;
-            
-            for(var m = 0; m < _stateWinner.length; m ++) {
-                if(data.state == _stateWinner[m].abbreviation) {
-                    if(republican.indexOf(data.candidate) !== -1) {
-                        if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
-                            if(data.candidate == _stateWinner[m].Republican) {
-                                fillTextures = textures.circles()
-                                        .radius(1)
-                                        .thicker()
-                                        .background(getFillColor(data))
-                                        .stroke("#000")
-                                        .strokeWidth(1);
-                            }else {
-                                fillTextures = textures.paths()
-                                        .d("crosses")
-                                        .background(getFillColor(data))
-                                        .stroke("#000")
-                                        .lighter()
-                                        .thicker();
-                            }
-                        }else {
-                            fillTextures = textures.lines()
-                                        .thicker()
-                                        .lighter()
-                                        .orientation("vertical")
-                                        .stroke("#000")
-                                        .background(getFillColor(data));
-                        }
-                    }else {
-                        if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
-                            if(data.candidate == _stateWinner[m].Democrat) {
-                                fillTextures = textures.circles()
-                                        .radius(1)
-                                        .thicker()
-                                        .stroke("#000")
-                                        .background(getFillColor(data))
-                                        .strokeWidth(1);
-                            }else {
-                                fillTextures = textures.paths()
-                                        .d("crosses")
-                                        .background(getFillColor(data))
-                                        .stroke("#000")
-                                        .lighter()
-                                        .thicker();
-                            }
-                        }else {
-                            fillTextures = textures.lines()
-                                        .thicker()
-                                        .lighter()
-                                        .orientation("vertical")
-                                        .stroke("#000")
-                                        .background(getFillColor(data));
-                        }
-                    }
-                    break;
-                }
-            }
-            svgs[n].call(fillTextures);
-            return fillTextures.url();
         }
         function getAbbr(stateName) {
             switch(stateName) {
@@ -883,25 +912,6 @@
         }
         function renderFontColorLegend() {
             var legend = ["Won", "Loss", "Not Yet"];
-            var t1 = textures.circles()
-                        .radius(1)
-                        .thicker()
-                        .background(scolor)
-                        .stroke("#000")
-                        .strokeWidth(1);
-            var t2 = textures.paths()
-                        .d("crosses")
-                        .background(scolor)
-                        .stroke("#000")
-                        .lighter()
-                        .thicker();
-            var t3 = textures.lines()
-                        .thicker()
-                        .lighter()
-                        .orientation("vertical")
-                        .stroke("#000")
-                        .background(scolor);
-            var textureC = [t1, t2, t3]
             function scolor() {
                 return curSentiment === "Positive" ? color(2) : color(-2);
             }
@@ -910,12 +920,30 @@
                         .attr("class", "fcSvg")
                         .attr("width", "33%")
                         .attr("height", "100%")
-                fcSvg.call(textureC[i])
                 var g = fcSvg.append("g")
                         .attr("transform", "translate(" + 20 + "," + 20 + ")");
-                g.append("circle")
-                        .attr("r", 20)
-                        .style("fill", textureC[i].url());
+                if(i == 0) {
+                    g.append("path")
+                      .attr("class", "wonpoint")
+                      .attr("d", d3.svg.symbol().type("triangle-up").size(function(d){ return triangleSize(200); }))
+                      .style("fill", function(d) { 
+                          return scolor();
+                      })
+                }else if(i == 1) {
+                    g.append("path")
+                      .attr("class", "losspoint")
+                      .attr("d", d3.svg.symbol().type("triangle-down").size(function(d){ return triangleSize(200); }))
+                      .style("fill", function(d) { 
+                          return scolor();
+                      })
+                }else {
+                    g.append("circle")
+                      .attr("class", "dot")
+                      .attr("r", 20)
+                      .style("fill", function(d) { 
+                          return scolor();
+                      })
+                }
                 g.append("text")
                         .attr("text-anchor", "middle")
                         .attr("x", 3)

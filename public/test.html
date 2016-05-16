@@ -1,390 +1,534 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+	<head>
+		<title>Visulaization Project</title>
+	</head>
+	<body>
+		<style>
+			body {
+				margin: 0 0 0 0;
+				font-family: "Menlo";
+                background: #f2f2f2;
+			}
+            #header {
+                width: 100%;
+                height: 8%;
+                background-color: #3d4a57;
+                border-color: #333;
+            }
+            #content {
+                width: 100%;
+                margin-left: 5px;
+            }
+            #leftContent {
+                float:left;
+                width: 13%;
+                height: 100%;
+                background: #fff;
+                border: 1px solid #e2e2e2;
+                border-radius: 3px;
+            }
+            .itemTitle {
+                border-bottom: 1px solid #d7d7d7;
+                color: #666;
+                font: 14px Menlo, sans-serif;
+                font-weight: 200;
+                padding: 4px 10px 4px;
+            }
+            #mainContent {
+                float: left;
+                width: 86%;
+                margin-left: 5px;
+                background: #fff;
+                border: 1px solid #e2e2e2;
+                border-radius: 3px;
+            }
+            /*#gramOption {
+                border-bottom: 1px solid #d7d7d7;
+                color: #666;
+                padding: 7px 10px 4px;
+            }
+            .gramOptionList {
+                padding-left: 10px;
+            }
+            .gramOptionList li {
+                padding: 5px;
+                border: 1px solid #aaaaaa;
+                font-weight: normal;
+                color: #212121;
+                outline: none;
+                display:inline;
+                list-style: none;
+            }*/
+            #legendANDOption {
+                border-bottom: 1px solid #d7d7d7;
+                color: #666;
+                padding: 7px 10px 4px;
+                width: 100%;
+                height: 15%;
+            }
+            #legend {
+                margin:0 0 0 0;
+                width: 35%;
+                float: left;
+            }
+            #sentimentOptionDiv {
+                float: right;
+                margin-right: 50px;
+            }
+            #fontColorLegend {
+                width: 40%;
+                height: 40%;
+            }
+            #bubbleSizeLegend {
+                width:100%;
+                height: 100%;
+            }
+            .dorlingItem {
+                float: left;
+                background: #fff;
+                border: 1px solid #e2e2e2;
+                border-radius: 3px;
+            }
+            .navBar {
+                padding: 10px 0 10px 10px;
+                height: 100%;
+                display:block;
+                color: #fbfbfb;
+                font: 24px Menlo, sans-serif;
+                font-weight: 300;
+            }
+			.listItem {
+				list-style: none;
+				padding-left: 0px;
+				margin-left: 0px;
+			}
+            h3 {
+                margin: 5 0 0 0;
+            }
+			#listChart {
+                margin: 0 0 0 0;
+				width: 100%;/*TODO*/
+                height: 100%;
+                padding-left: 0px;
+				overflow: scroll;
+                background: #fff;
+			}
+            .listItem p {
+                margin: 0 0 5 0;
+                border-bottom: 1px solid black;
+                padding-top: 5px;
+                overflow: auto;
+            }
+            .listItem:hover {
+                background: #eee;
+                cursor: pointer;
+            }
+            
+            .key path {
+                display: none;
+            }
 
-    .land {
-      fill: #222;
-    }
-    
-    .nestedXAxis,.nestedYAxis {
-        font: 10px sans-serif;
-    }
-    .nestedXAxis,.nestedYAxis path,
-    .nestedXAxis,.nestedYAxis line {
-        fill: none;
-        stroke: #000;
-    }
-    
-    .xAxis,.yAxis {
-      font: 10px sans-serif;
-    }
-    .xAxis,.yAxis path,
-    .xAxis,.yAxis line {
-      fill: none;
-      stroke: #000;
-    }
-    .xAxis path{
-        display: none;
-    }
-    .caption {
-      font-weight: bold;
-    }
-
-    .key path {
-      display: none;
-    }
-
-    .key line {
-      stroke: #FFF;
-      shape-rendering: crispEdges;
-    }
-    .county-boundary {
-      fill: none;
-      stroke: #fff;
-      stroke-width: .5px;
-    }
-
-    .state-boundary {
-      fill: none;
-      stroke: #fff;
-    }
-
-    #mainContent {
-        float: left;
-        width: 900px;
-
-    }
-    #nestedSVG {
-        float: right;
-        width:360px;
-        background-color: rgba(255,255,255,0.8);
-        border: solid 1px black;
-    }   
-/*using class attribute to fill color
-.q0-9 { fill:rgb(247,251,255); }
-.q1-9 { fill:rgb(222,235,247); }
-.q2-9 { fill:rgb(198,219,239); }
-*/
-
-</style>
-<body>
-<div id="mainContent">
-    <div id="option">
-        <div>
-            <select id="sentimentOption">
-                <option value="Positive">Positive Analysis</option>
-                <option value="Negative">Negative Analysis</option>
-            </select>
+            .key line {
+                stroke: #FFF;
+                shape-rendering: crispEdges;
+            }
+            .key {
+                font: 13px  sans-serif;
+            }
+            
+            .tick {
+                font: 10px Menlo, sans-serif;
+            }
+            #tooltip {
+                position: absolute;
+                top: 0;
+                left: 0;
+                background-color: "#ccc";
+                border: 2px outset #ccc;
+                border-radius: 10px;
+                visibility: hidden;
+                width: 700px;
+                height: 400px;
+            }
+            #tooltip header {
+                margin-top:10px;
+                height: 10%;
+                border-bottom: 1px solid #e2e2e2;
+            }
+            #tooltip header #nestedTitle{
+                height: 100%;
+                width: 60%;
+                float: left;
+                margin-left:10px;
+            }
+            #tooltip header #nestedClose {
+                width: 40px;
+                height: 100%;
+                float: right;
+                background: url('img/1462324832_circle-close-delete-remove-outline-stroke.svg') no-repeat;
+            }
+            
+            #nesetedContent {
+                width: 100%;
+                height: 90%;
+            }
+            #nestedContent #nestedBarSVG {
+                width: 135;
+                float: left;
+                border-right: 2px solid #e2e2e2;
+            }
+            #nestedContent #nestedLineSVG {
+                width: 560;
+                float: left;
+            }
+            .nestedXAxis,.nestedYAxis {
+                font: 10px Menlo, sans-serif;
+            }
+            .nestedXAxis,.nestedYAxis path,
+            .nestedXAxis,.nestedYAxis line {
+                fill: none;
+                stroke: #000;
+            }
+            /*lineChart*/
+            .line {
+                fill: none;
+                stroke: steelblue;
+                stroke-width: 1.5px;
+            }
+            .svg0,.svg1,.svg2,.svg3 {
+                background: #fff;
+            }
+		</style>
+		<!--<input id="tweet" type="text"/>-->
+        <div id="header">
+            <div id="navBar">
+                <a class="navBar">Sentiment Analysis of Twitter About Presidential Candidates</a>
+            </div>
         </div>
-        <div>
-            <select id="candidateOption">
-                <option value="Donald Trump">Donald Trump</option>
-                <option value="Hillary Clinton">Hillary Clinton</option>
-                <option value="Bernie Sanders">Bernie Sanders</option>
-                <option value="Ted Cruz">Ted Cruz</option>
-            </select>
-        </div>
-    </div>
-</div>
-<div id="nestedSVG"></div>
-<div id="leftContent">
-    <ul class="tweetList" id="tweetList"></ul>
-</div>
-<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script>
-<script>
-    
-    $("#sentimentOption").change(function() {
-        selectChanged();
-    });
-    $("#candidateOption").change(function() {
-       selectChanged();
-    });
-    function selectChanged() {
-        d3.selectAll("svg > *").remove();
-        curCandidate = $("#candidateOption").val();
-        curSentiment = $("#sentimentOption").val();
-        render(_us, _sentimentResults, curCandidate, curSentiment, curState);
-    }
-    var statesList = function(num) {
-        switch(num) {
-            case 1: return "Alabama";
-            case 2: return "Alaska";
-            case 4: return "Arizona";
-            case 5: return "Arkansas";
-            case 6: return "California";
-            case 8: return "Colorado";
-            case 9: return "Connecticut";
-            case 10: return "Delaware";
-            case 12: return "Florida";
-            case 13: return "Georgia";
-            case 15: return "Hawaii";
-            case 16: return "Idaho";
-            case 17: return "Illinois";
-            case 18: return "Indiana";
-            case 19: return "Iowa";
-            case 20: return "Kansas";
-            case 21: return "Kentucky";
-            case 22: return "Louisiana";
-            case 23: return "Maine";
-            case 24: return "Maryland";
-            case 25: return "Massachusetts";
-            case 26: return "Michigan";
-            case 27: return "Minnesota";
-            case 28: return "Mississippi";
-            case 29: return "Missouri";
-            case 30: return "Montana";
-            case 31: return "Nebraska";
-            case 32: return "Nevada";
-            case 33: return "New Hampshire";
-            case 34: return "New Jersey";
-            case 35: return "New Mexico";
-            case 36: return "New York";
-            case 37: return "North Carolina";
-            case 38: return "North Dakota";
-            case 39: return "Ohio";
-            case 40: return "Oklahoma";
-            case 41: return "Oregon";
-            case 42: return "Pennsylvania";
-            case 44: return "Rhode Island";
-            case 45: return "South Carolina";
-            case 46: return "South Dakota";
-            case 47: return "Tennessee";
-            case 48: return "Texas";
-            case 49: return "Utah";
-            case 50: return "Vermont";
-            case 51: return "Virginia";
-            case 53: return "Washington";
-            case 54: return "West Virginia";
-            case 55: return "Wisconsin";
-            case 56: return "Wyoming";
+        <div id="content">
+            <div id="leftContent">
+                <div class="itemTitle">
+                    Tweet List
+                </div>
+                <div id="tweetList">
+                    <ul id="listChart"></ul>
+                </div>      
+            </div>
+            <div id="mainContent">
+                <!--<div id="gramOption">
+                    <ul class="gramOptionList">
+                        <li><a>DorlingCartogram</a></li>
+                        <li><a>Choropleth</a></li>
+                    </ul>
+                </div>-->
+                <div id="legendANDOption">
+                    <div id="legend">
+                    </div>
+                    <div id="sentimentOptionDiv">
+                        <select id="sentimentOption">
+                            <option value="Positive">Positive Analysis</option>
+                            <option value="Negative">Negative Analysis</option>
+                            <option value="Average">Average Analysis</option>
+                        </select>
+                    </div>
+                    <div id="fontColorLegend">
+                    </div>
+                    <div id="bubbleSizeLegend"></div>
+                </div>  
+                <div class="dorlingItem">
+                    <div class="itemTitle">Republican</div>
+                    <div class="itemTitle">
+                        Donald Trump
+                    </div>
+                    <div id="svg0"></div>
+                </div>
+                <div class="dorlingItem">
+                    <div class="itemTitle">Democrat</div>
+                    <div class="itemTitle">
+                        Hillary Clinton
+                    </div>
+                    <div id="svg1"></div>
+                </div>
+                <div class="dorlingItem">
+                    <div class="itemTitle">
+                        Ted Cruz
+                    </div>
+                    <div id="svg2"></div>
+                </div>
+                <div class="dorlingItem">
+                    <div class="itemTitle">
+                        Bernie Sanders
+                    </div>
+                    <div id="svg3"></div>
+                </div>  
+            </div>
+            <div id="tooltip">
+                <header>
+                    <div id="nestedTitle"></div>
+                    <div id="nestedClose" onclick="unshowToolTip()">
+                    </div>
+                </header>
+                <div id="nestedContent">
+                    <div id="nestedBarSVG"></div>
+                    <div id="nestedLineSVG"></div>
+                </div>
+            </div>
+        </div>	
+	</body>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://riccardoscalco.github.io/textures/textures.min.js"></script>
+	<script>
+		var list = d3.select("#listChart");
+		var redSaturation = ["#F0F0F0","#FFD7D7","#FF8788","#FF1011"],
+            blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
+		var positiveDegree = [0, 1.5, 3, 10],
+            negativeDegree = [-10, -5, -3, 0];
+		var positiveColor = function(v) {
+		    if(v == positiveDegree[0]) return redSaturation[0];
+		    if(v < positiveDegree[1]) return redSaturation[1];
+		    if(v < positiveDegree[2]) return redSaturation[2];
+		    if(v < positiveDegree[3]) return redSaturation[3];
+		}
+        var negativeColor = function(v) {
+            if(v == negativeDegree[3]) return blueSaturation[3];
+            if(v > negativeDegree[2]) return blueSaturation[2];
+            if(v > negativeDegree[1]) return blueSaturation[1];
+            if(v > negativeDegree[0]) return blueSaturation[0];
         }
-    }
-    var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = 900 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-    //Global Varibles
-    //storing the json data
-    var _us,
-        _sentimentResults;
-    var curCandidate = "Donald Trump",
-        curSentiment = "Positive",
-        curState = "California";
-
-    //tick format
-    var formatPercent = d3.format(".0%"),
-        formatNumber = d3.format(".0f");
-
-    //element of choropleth
-    var projection = d3.geo.albersUsa()
-        .scale(1000)
-        .translate([width / 2, height / 2]);
-
-    var path = d3.geo.path()
-        .projection(projection);
-
-    var svg = d3.select("#mainContent").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    //color handler
-    var color = function(v) {   
-        switch(curSentiment) {
-            case "Positive" : return positiveColor(v);
-            case "Negative" : return negativeColor(v);
-        }
-    }
-    var redSaturation = ["#FDD2AA","#F7976B","#F26123","#B7161E"];
-    var blueSaturation = ["#08306B","#4C78D9","#AEE8FE","#F0F0F0"];
-    var positiveDegree = [0, 1.5, 3, 10],
-        negativeDegree = [-10, -5, -3, 0];
-    var positiveColor = function(v) {
-        if(v == positiveDegree[0]) return redSaturation[0];
-        if(v < positiveDegree[1]) return redSaturation[1];
-        if(v < positiveDegree[2]) return redSaturation[2];
-        if(v < positiveDegree[3]) return redSaturation[3];
-    }
-    var negativeColor = function(v) {
-        if(v == negativeDegree[3]) return blueSaturation[3];
-        if(v > negativeDegree[2]) return blueSaturation[2];
-        if(v > negativeDegree[1]) return blueSaturation[1];
-        if(v > negativeDegree[0]) return blueSaturation[0];
-    }
-
-    //elements of bar chart for nested svg
-    var nestedSVG = d3.select("#nestedSVG").append("svg")
-        .attr("width", 360)
-        .attr("height", 400)
-        .attr("transform", "translate(0," + 30 + ")");
-
-    var nestedXScale = d3.scale.ordinal()
-        .domain(["DT", "HC", "TC", "BS"])
-        .rangeRoundBands([0, 360 - 80], .1);
-    var nestedYScale = d3.scale.linear()
-        .domain([-1,1])
-        .range([400 - 100, 0]);
-    var nestedXAxis = d3.svg.axis()
-        .scale(nestedXScale)
-        .orient("bottom");
-    var nestedYAxis = d3.svg.axis()
-        .scale(nestedYScale)
-        .orient("left")
-        .tickValues([-1,-.8,-.6,-.4,-.2,0,.2,.4,.6,.8,1])
-        .tickFormat(formatPercent);
-    //elements of bar chart for overview
-    var svgBar = d3.select("#mainContent").append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("transform", "translate(0," + height +")");
-    var xa = d3.scale.ordinal()
-        .rangeRoundBands([0, width - 80], .1);
-    var ya = d3.scale.linear()
-        .range([height - 100, 0]);
-    var xAxis = d3.svg.axis()
-        .scale(xa)
-        .orient("bottom");
-    var yAxis = d3.svg.axis()
-        .scale(ya)
-        .orient("left");
-
-    //function
-    function render(us, sentimentResults, curCandidate, curSentiment, curState) {
-        renderThresholdKey();  
-        var results = sentimentResults
-          .filter(function(d) { return d.candidates === curCandidate; })
-          .map(function(d) {
-            var point = projection(d.coordinates),
-                state = d.state,
-                avgScore = curSentiment === "Positive" ? d.positiveAvgScore : d.negativeAvgScore,
-                amount = d.amount,
-                candidate = d.candidates;
-            return {
-              x: point[0], y: point[1],
-              state: state,
-              avgScore: avgScore,
-              amount: amount,
-              candidate: candidate
-            };
-          });
-        var nestedResults = sentimentResults
-            .filter(function(d) { return d.state === curState; })
-            .map(function(d) {
-                var state = d.state,
-                    positivePercent = d.positivePercent,
-                    negativePercent = d.negativePercent,
-                    amount = d.amount;
-                var candidate = function(v) {
-                    switch(v) {
-                        case "Donald Trump": return "DT";
-                        case "Hillary Clinton": return "HC";
-                        case "Ted Cruz": return "TC";
-                        case "Bernie Sanders": return "BS";
-                    }
-                }
-                return {
-                    state: state,
-                    positivePercent: positivePercent,
-                    negativePercent: negativePercent,
-                    amount: amount,
-                    candidate: candidate(d.candidates)
-                };
+		var tweets = [];
+		socket = io.connect();
+		socket.on('tweet', function(data) {
+			//$("#tweet").val(data.text);
+			console.log("plz show me");
+			console.log(data);
+			tweets.push(data)
+			var listItem = list.selectAll("li")
+				.data(tweets)
+				.enter()
+                .append("li")
+				.attr("class", "listItem")
+            listItem.append("h3")
+                .style("font", "bold 10px/1.5 Menlo, sans-serif")
+                .text(function(d) { return d.candidates});
+            listItem.append("p")
+				.style("background-color", function(d) { return d.sentiment.score > 0 ? positiveColor(d.sentiment.score) : negativeColor(d.sentiment.score);})
+                .style("font", "bold 10px/1.5 Menlo, sans-serif")
+                .style("color", "#FFFFFF")
+				.text(function(d) { return d.text})
+                .on("click", function(d) {
+                    renderBubbles(d);
             });
-        console.log(nestedResults);
-        //map
-        renderMap(us, results);
-        //bar chart
-        renderBarChart(results);
-        //nested bar chart
-        renderNestedBarChart(nestedResults);
-    }
-
-    function renderMap(us, results) {
-        var states = topojson.feature(us, us.objects.states, function(a, b) { return a !== b; }).features;
-        var g = svg.append("g")
-          .attr("class", "state");
-        g.selectAll("path")
-          .data(states)
-        .enter().append("path")
-          .attr("d", path)
-          .style("fill", function(d) { 
-                for(var i = 0; i < results.length; i ++) {
-                    if(statesList(d.id) == results[i].state) {
-                        return color(results[i].avgScore);
-                    }
+            renderBubbles(data);
+            
+            
+            function getSvg(candidates) {
+                switch(candidates) {
+                    case "Donald Trump": return 0;
+                    case "Hillary Clinton": return 1;
+                    case "Ted Cruz": return 2;
+                    case "Bernie Sanders": return 3;
                 }
-                return "#808080";    
-            })
-            .on('mouseover', function(d, i) {
-                d3.select(this)
-                    .style("stroke", "black")
-                    .style("stroke-width", 3);
-            })
-            .on('mouseout', function(d, i) {
-                d3.select(this).style("stroke", undefined);
-            })
-            .on('click', function(d, i) {
-                for(var i = 0; i < results.length; i ++) {
-                    if(statesList(d.id) == results[i].state) {
-                        curState = results[i].state;
-                        break;
-                    }
-                }
-                d3.selectAll("svg > *").remove();
-                render(_us, _sentimentResults, curCandidate, curSentiment, curState);
-            })
-        .append("title")
-          .text(function(d) { 
-            for(var i = 0; i < results.length; i ++) {
-                if(statesList(d.id) == results[i].state) {
-                    return "Tweets Amount of " + statesList(d.id) + ":" + results[i].amount;
-                }
-            }    
-            return "No Tweets in " + statesList(d.id); 
+            }
+            function renderBubbles(data) {
+                var temp = []; 
+                temp.push(data);
+                var bubbles = temp.map(function(d) {
+                    var coordinates = [];
+                    coordinates.push(parseFloat(d.coordinates.split(",")[1]));
+                    coordinates.push(parseFloat(d.coordinates.split(",")[0]));
+                    var point = projection(coordinates),
+                        score = d.sentiment.score,
+                        state = d.state,
+                        candidate = d.candidates;
+                    return {
+                      x: point[0], y: point[1],
+                      x0: point[0], y0: point[1],
+                      score: score,
+                      state: state,
+                      candidate: candidate
+                    };
+                  });
+                var svgNum = getSvg(data.candidates)
+                var g = svgs[svgNum].append("g")
+                    .attr("transform", "translate(" + -170 + "," + -60 + ")");
+                var bubble = g.selectAll("circle")
+                    .data(bubbles)
+                    .enter().append("circle")
+                        .attr("r", 0)
+                        .style("fill", "#FFFFFF")
+                        .style("stroke", function(d) { return d.score > 0 ? positiveColor(d.score) : negativeColor(d.score);})
+                        .style("stroke-width", 5)
+                        .style("opacity", 0.7)
+                        .attr("cx", function(d) { return d.x; })
+                        .attr("cy", function(d) { return d.y; })
+                    .transition()
+                        .duration(2000)
+                        .ease(Math.sqrt)
+                        .attr("r", 50) 
+                        .style("stroke", "#FFFFFF")
+                        .style("stroke-width", 5)
+                        .remove();
+            }
+        })
+	</script>
+    <script>
+        $("#sentimentOption").change(function() {
+            selectChanged();
         });
-        //state-boundary
-        svg.append("path")
-          .datum(topojson.feature(us, us.objects.states, function(a, b) { return a !== b; }))
-          .attr("class", "state-boundary")
-          .attr("d", path);
-    }
-    function renderBarChart(results) {
-        xa.domain(results.map(function(d) { return d.state; }));
-        ya.domain(d3.extent(results, function(d) { return d.amount; }));
-        //load xAxis
-        svgBar.append("g")
-            .attr("class", "xAxis")
-            .attr("transform", "translate(40," +  (height - 75) + ")")
-            .call(xAxis)
-            .selectAll("text")  
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)" );
-        //load yAxis
-        svgBar.append("g")
-            .attr("class", "yAxis")
-            .attr("transform", "translate(40,25)")
-            .call(yAxis)
-            .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Amount of Tweets");
-        //load bar
-        var barGroup = svgBar.append("g")
-                    .attr("transform", "translate(40,0)");
-        barGroup.selectAll("rect")
-            .data(results)
-            .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", function(d) { return xa(d.state); })
-                .attr("width", xa.rangeBand())
-                .attr("y", function(d) { return ya(d.amount) + 24; })
-                .attr("height",function(d) { return height - 99 - ya(d.amount); })
-                .attr("fill", function(d) { return color(d.avgScore); })
+
+        function selectChanged() {
+            d3.selectAll("svg > *").remove();
+            d3.selectAll("circle > *").remove();
+            d3.selectAll("text > *").remove();
+            d3.selectAll(".fcSvg").remove();
+            d3.selectAll(".bsSvg").remove();
+            nodesCollection = [];
+            curSentiment = $("#sentimentOption").val();
+            render(_states);
+        }
+
+        var _states,
+            _stateWinner,
+            _dailyResult;
+        
+        var nodesCollection = [];
+
+        var curSentiment = "Positive",
+            curCandidate = "Donald Trump",
+            curState = "New York";
+
+        var candidates = ["Donald Trump", "Hillary Clinton", "Ted Cruz", "Bernie Sanders"];
+        var republican = ["Donald Trump", "Ted Cruz"];
+        var democrat = ["Hillary Clinton", "Bernie Sanders"];
+        
+        var margin = {top: 0, right: 0, bottom: 0, left: 10},
+            width = 610 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom,
+            padding = 3;
+
+
+        var projection = d3.geo.albersUsa()
+            .scale(700)
+
+        var size = d3.scale.linear()
+            .domain([0, 300])
+            .range([10, 100]);
+        var triangleSize = d3.scale.linear()
+            .domain([0, 300])
+            .range([200, 1000]);
+        //tick format
+        var formatPercent = d3.format(".0%"),
+            formatNumber = d3.format(".0f");
+        
+        //color handler
+        var color = function(v) {   
+            switch(curSentiment) {
+                case "Positive" : return positiveColor(v);
+                case "Negative" : return negativeColor(v);
+                case "Average" : return avgColor(v); //for average layer
+            }
+        }
+        var redSaturation = ["#FDD2AA","#F7976B","#F26123","#B7161E"];
+        var blueSaturation = ["#1946F1","#1E8CFF","#76BBFB","#CEE6FE"];
+        var positiveDegree = [0, 1.5, 3, 10],
+            negativeDegree = [-10, -5, -3, 0];
+        var positiveColor = function(v) {
+            if(v == positiveDegree[0]) return redSaturation[0];
+            if(v < positiveDegree[1]) return redSaturation[1];
+            if(v < positiveDegree[2]) return redSaturation[2];
+            if(v < positiveDegree[3]) return redSaturation[3];
+        }
+        var negativeColor = function(v) {
+            if(v == negativeDegree[3]) return blueSaturation[3];
+            if(v > negativeDegree[2]) return blueSaturation[2];
+            if(v > negativeDegree[1]) return blueSaturation[1];
+            if(v > negativeDegree[0]) return blueSaturation[0];
+        }
+        var avgColor = function(v) { //for average layer
+            if(v < negativeDegree[1]) return blueSaturation[0];
+            else if(v < negativeDegree[2]) return blueSaturation[1];
+            else if(v < negativeDegree[3]) return blueSaturation[2];
+            else if(v == positiveDegree[0]) return redSaturation[0];
+            else if(v < positiveDegree[1]) return redSaturation[1];
+            else if(v < positiveDegree[2]) return redSaturation[2];
+            else if(v < positiveDegree[3]) return redSaturation[3];
+        }
+
+        
+        var svgs = [];
+        for(var n = 0; n < 4; n ++) {
+            var svg = d3.select("#svg" + n).append("svg")
+                    .attr("class", "svg" + n)
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("transform", "translate(" + 500 + "," + 0 + ")")
+            svgs.push(svg);
+        }
+        var svgLegend = d3.select("#legend").append("svg")
+                    .attr("width", "100%")
+                    .attr("height", "50%")
+        
+        function render(states, curCandidate, curState, curSentiment) {
+            for(var n = 0; n < 4; n ++) {// four candidates
+              var nodes = states
+                .filter(function(d) { return d.candidates == candidates[n]; })
+                .map(function(d) {
+                    var point = projection(d.coordinates),
+                        value = d.amount,
+                        state = getAbbr(d.state),
+                        candidate = d.candidates,
+                        positiveAvgScore = d.positiveAvgScore,
+                        negativeAvgScore = d.negativeAvgScore,
+                        avgAvgScore = (d.positiveAvgScore + d.negativeAvgScore),
+                        positivePercent = d.positivePercent,
+                        negativePercent = d.negativePercent,//for average layer
+                        isWonFlag = isWon(getAbbr(d.state), d.candidates);
+                    return {
+                        x: point[0], y: point[1],
+                        x0: point[0], y0: point[1],
+                        r: Math.sqrt(30 * size(value) / Math.PI),
+                        value: value,
+                        state: state,
+                        candidate: candidate,
+                        positiveAvgScore: positiveAvgScore,
+                        negativeAvgScore: negativeAvgScore,
+                        avgAvgScore: avgAvgScore,
+                        positivePercent: positivePercent,
+                        negativePercent: negativePercent,
+                        isWonFlag: isWonFlag
+                    };
+                  });
+              nodesCollection.push(nodes);
+            }
+            for(var n = 0; n < 4; n ++) {
+                //renderDorling(nodesCollection[n], n);
+                renderIcon(nodesCollection[n], n);
+            }
+            renderLegend();
+            renderFontColorLegend();
+            renderBubbleSizeLegend();
+        }
+        function renderDorling(nodes, n) {
+            var g = svgs[n].append("g")
+                    .attr("transform", "translate(" + -170 + "," + -60 + ")");
+
+            var force = d3.layout.force()
+                    .charge(0)
+                    .gravity(0)
+                    .size([width, height])
+                    .nodes(nodes)
+                    .on("tick", tick)
+                    .start();
+            var node = g.selectAll("circle")
+                  .data(nodes)
+                .enter().append("circle")
+                  .attr("r", function(d) { return d.r; })
+                  .style("fill", function(d) { 
+                      return getFillTextures(n, d);
+                  })
                 .on('mouseover', function(d, i) {
                     d3.select(this)
                         .style("stroke", "black")
@@ -393,166 +537,766 @@
                 .on('mouseout', function(d, i) {
                     d3.select(this).style("stroke", undefined);
                 })
-        barGroup.selectAll("text")
-            .data(results)
-            .enter().append("text")
-            .attr("x", function(d) { return xa(d.state) + 2; })
-                .attr("y", function(d) { return ya(d.amount) + 20; })
-                .attr("dy", ".35em")
-                .text(function(d) { return d.amount;})
-                .attr("font-family", "sans-serif")
-                .attr("font-size", "10")
-                .attr("fill", "black");
-    }
-    function renderNestedBarChart(nestedResults) {
-        nestedSVG
-            .append("text")
-                .attr("transform", "translate(50,15)")
-                .style("font", "13px sans-serif")
-                .text("Tweets percentage in " + curState + " per candidate");
-        nestedSVG.append("g")
-            .attr("class", "nestedYAxis")
-            .attr("transform", "translate(40,20)")
-            .call(nestedYAxis)
-        nestedSVG.append("g")
-            .attr("class", "nestedXAxis")
-            .attr("transform", "translate(40,170)")//150 + 20
-            .call(nestedXAxis);
+                .on("click", function(d) {
+                    curCandidate = d.candidate;
+                    curState = d.state;
+                    showToolTip(d);
+                });
 
-        var positiveBarGroup = nestedSVG.append("g")
-            .attr("transform", "translate(40,0)");
-        positiveBarGroup.selectAll("rect")
-            .data(nestedResults)
-            .enter().append("rect")
-                .attr("class", "positiveBar")
-                .attr("x", function(d) { return nestedXScale(d.candidate); })
-                .attr("y", function(d) { return nestedYScale(d.positivePercent); })
-                .attr("width", nestedXScale.rangeBand())
-                .attr("height", function(d) { return (150 - nestedYScale(d.positivePercent)); })
-                .attr("fill", "#FF1011")
-                .attr("opacity", 0.5)
-                .attr("transform", "translate(0,20)")
-       var negativeBarGroup = nestedSVG.append("g")
-            .attr("transform", "translate(40,0)");
-        negativeBarGroup.selectAll("rect")
-            .data(nestedResults)
-            .enter().append("rect")
-                .attr("class", "negativeBar")
-                .attr("x", function(d) { return nestedXScale(d.candidate); })
-                .attr("y", function(d) { return nestedYScale(0);})
-                .attr("width", nestedXScale.rangeBand())
-                .attr("height", function(d) { return nestedYScale(d.negativePercent * (-1)) - 150; })
-                .attr("fill", "#08306B") 
-                .attr("opacity", 0.5)
-                .attr("transform", "translate(0,20)")
+            var circleText = g.selectAll("text")
+                    .data(nodes)
+                    .enter().append("text")
+                    .attr("class", "circleText")
+                    .attr("text-anchor", "middle")
+                    .text(function(d) { return d.state })
+                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(10) })
+                    .attr("font-weight", 900)
+                    .attr("fill", "#fff")
+            
+          function tick(e) {
+            node.each(gravity(e.alpha * .1))
+                .each(collide(.5))
+                .attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+            circleText.each(gravity(e.alpha * .1))
+                .each(collide(.5))
+                .attr("x", function(d) { return d.x; })
+                .attr("y", function(d) { return d.y; });
+          }
 
-        //thresholdKey for nested bar chart
-        var g_key = nestedSVG.append("g")
-                .attr("class", "key")
-                .attr("transform","translate(100,350)");
-            var x = d3.scale.ordinal()
-                .domain(["positive tweet", "negative tweet"])
-                .rangeRoundBands([0, 300], .1);
-        g_key.selectAll("rect")
-            .data(["#FF8888", "#8498b5"])
-            .enter().append("rect")
-                .attr("height", 8)
-                .attr("x", function(d, i) { return i === 0 ? 0 : x.rangeBand();})
-                .attr("width", function(d) { return x.rangeBand(); })
-                .attr("fill", function(d) { return d; });
-        g_key.selectAll("text")
-            .data(x.domain())
-            .enter().append("text")
-                .attr("x", function(d, i) { return i === 0 ? 0 : x.rangeBand();})
-                .style("font", "13px sans-serif")
-                .text(function(d) { return d})
-    }
-    function renderThresholdKey() {
-        //Threshold Key
-        var colorRange = function() {
-            switch(curSentiment) {
-                case "Positive" : return redSaturation;
-                case "Negative" : return blueSaturation;
-            }
-        }
-        var sentimentDegree = function() {
-            switch(curSentiment) {
-                case "Positive" : return positiveDegree;
-                case "Negative" : return negativeDegree;
-            }
-        }
-        var scaleDomain = function() {
-            switch(curSentiment) {
-                case "Positive" : return [-.5, 10];
-                case "Negative" : return [-10, 1];
-            }
-        }
-        var g2 = svg.append("g")
-            .attr("class", "key")
-            .attr("transform", "translate("+ (width -440) + ",40)");
-        var axisColor = d3.scale.threshold()
-            .domain(sentimentDegree())
-            .range(colorRange());
-        var x = d3.scale.linear()
-            .domain(scaleDomain())
-            .range([0, 240]);
-        var threashold = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .tickSize(13)
-            .tickValues(axisColor.domain())
-            .tickFormat(function(d) { return d === .5 ? formatNumber(d) : d});
-        g2.selectAll("rect")
-            .data(axisColor.range().map(function(d, i) {
-                switch(curSentiment) {
-                    case "Positive" : return {
-                        x0: i ? x(axisColor.domain()[i - 1]) : x.range()[0],
-                        x1: i < axisColor.domain().length ? x(axisColor.domain()[i]) : x.range()[1],
-                        z: d
-                      };
-                    case "Negative" : return {
-                        x0: i < axisColor.domain().length ? x(axisColor.domain()[i]) : x.range()[1],
-                        x1: i < axisColor.domain().length - 1 ? x(axisColor.domain()[i + 1]) : x.range()[1],
-                        z: d
-                    };
+          function gravity(k) {
+            return function(d) {
+              d.x += (d.x0 - d.x) * k;
+              d.y += (d.y0 - d.y) * k;
+            };
+          }
+
+          function collide(k) {
+            var q = d3.geom.quadtree(nodes);
+            return function(node) {
+              var nr = node.r + padding,
+                  nx1 = node.x - nr,
+                  nx2 = node.x + nr,
+                  ny1 = node.y - nr,
+                  ny2 = node.y + nr;
+              q.visit(function(quad, x1, y1, x2, y2) {
+                if (quad.point && (quad.point !== node)) {
+                  var x = node.x - quad.point.x,
+                      y = node.y - quad.point.y,
+                      l = x * x + y * y,
+                      r = nr + quad.point.r;
+                  if (l < r * r) {
+                    l = ((l = Math.sqrt(l)) - r) / l * k;
+                    node.x -= x *= l;
+                    node.y -= y *= l;
+                    quad.point.x += x;
+                    quad.point.y += y;
+                  }
                 }
-            }))
-          .enter().append("rect")
-            .attr("height", 8)
-            .attr("x", function(d) { return d.x0; })
-            .attr("width", function(d) { return d.x1 - d.x0; })
-            .style("fill", function(d) { return d.z; });
-        g2.call(threashold).append("text")
-            .attr("class", "caption")
-            .attr("y", -6)
-            .attr("font-size", 10)
-            .text(curSentiment + " average Score of positive sentiment of each state for " + curCandidate);
-    }
-    //list chart
-    var list = d3.select("#tweetList");
-    function renderList(data) {
-        var listItem = list.selectAll("li")
-            .data(data, function(d) { return d.text});
-        listItem.enter()
-            .append("li")
-            .attr("class","listItem")
-            .text(function(d) { return d.text})
-        listItem.exit().remove();
-    }
+                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+              });
+            };
+          }   
+        }
+        function renderIcon(nodes, n) {
+            var g = svgs[n].append("g")
+                    .attr("transform", "translate(" + -170 + "," + -60 + ")");
+            
+            var force = d3.layout.force()
+                    .charge(0)
+                    .gravity(0)
+                    .size([width, height])
+                    .nodes(nodes)
+                    .on("tick", tick)
+                    .start();
+            
+            var wonNodes = nodes
+                .filter(function(d) { return d.isWonFlag == 1; });
+            var lossNodes = nodes
+                .filter(function(d) { return d.isWonFlag == 0; });
+            var nyetNodes = nodes
+                .filter(function(d) { return d.isWonFlag == -1; });
+            
+            if(n == 2) {
+                console.log(wonNodes);
+                console.log(lossNodes);
+                console.log(nyetNodes);
+            }
+             var nwon = g.selectAll(".wonpoint")
+                  .data(wonNodes)
+                .enter().append("path")
+                  .attr("class", "wonpoint")
+                  .attr("d", d3.svg.symbol().type("triangle-up").size(function(d){ return triangleSize(100); }))
+                  .style("fill", function(d) { 
+                      return getFillColor(d);
+                  })
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
+            
+            var nloss = g.selectAll(".losspoint")
+                  .data(lossNodes)
+                .enter().append("path")
+                  .attr("class", "losspoint")
+                  .attr("d", d3.svg.symbol().type("triangle-down").size(function(d){ return triangleSize(100); }))
+                  .style("fill", function(d) { 
+                      return getFillColor(d);
+                  })
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
+            var nnyet = g.selectAll(".dot")
+                  .data(nyetNodes)
+                .enter().append("circle")
+                  .attr("class", "dot")
+                  .attr("r", function(d) { return d.r; })
+                  .style("fill", function(d) { 
+                      return getFillColor(d);
+                  })
+                  .on('mouseover', function(d, i) {
+                        d3.select(this)
+                            .style("stroke", "black")
+                            .style("stroke-width", 2);
+                    })
+                  .on('mouseout', function(d, i) {
+                        d3.select(this).style("stroke", undefined);
+                    })
+                  .on("click", function(d) {
+                        curCandidate = d.candidate;
+                        curState = d.state;
+                        showToolTip(d);
+                    });
+            var circleText = g.selectAll("text")
+                    .data(nodes)
+                    .enter().append("text")
+                    .attr("class", "circleText")
+                    .attr("text-anchor", "middle")
+                    .text(function(d) { return d.state })
+                    .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(10) })
+                    .attr("font-weight", 900)
+                    .attr("fill", "#fff")
+            function tick(e) {
+                nwon.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                nloss.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                nnyet.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; });
+                circleText.each(gravity(e.alpha * .1))
+                    .each(collide(.5))
+                    .attr("x", function(d) { return d.x; })
+                    .attr("y", function(d) { return d.y; });
+          }
 
+          function gravity(k) {
+            return function(d) {
+              d.x += (d.x0 - d.x) * k;
+              d.y += (d.y0 - d.y) * k;
+            };
+          }
 
-    d3.select(self.frameElement).style("height", height + "px");
+          function collide(k) {
+            var q = d3.geom.quadtree(nodes);
+            return function(node) {
+              var nr = node.r + padding,
+                  nx1 = node.x - nr,
+                  nx2 = node.x + nr,
+                  ny1 = node.y - nr,
+                  ny2 = node.y + nr;
+              q.visit(function(quad, x1, y1, x2, y2) {
+                if (quad.point && (quad.point !== node)) {
+                  var x = node.x - quad.point.x,
+                      y = node.y - quad.point.y,
+                      l = x * x + y * y,
+                      r = nr + quad.point.r;
+                  if (l < r * r) {
+                    l = ((l = Math.sqrt(l)) - r) / l * k;
+                    node.x -= x *= l;
+                    node.y -= y *= l;
+                    quad.point.x += x;
+                    quad.point.y += y;
+                  }
+                }
+                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+              });
+            };
+          }   
+        }
+        function unshowToolTip() {
+            d3.select("#tooltip").style({
+                visibility: "hidden",
+                top: 0,
+                left: 0
+            })
+        }
+        function showToolTip(data) {
+            d3.selectAll(".nestedBarSVG").remove();
+            d3.selectAll(".nestedLineSVG").remove();
+            $("#nestedTitle").html("<font size='3'>" + data.candidate + " in " + data.state + "</font>");
+            d3.select("#tooltip").style({
+                visibility: "visible",
+                top: "461px",
+                left: "500px",
+                opacity: 0.9,
+                background: "#fff"
+            });
+            renderNestedBarChart(data);
+            curCandidate = data.candidate;
+            curState = data.state;
+            renderNestedLineChart();
+        }
+        function isWon(state, candidate) {
+            for(var m = 0; m < _stateWinner.length; m ++) {
+                if(state == _stateWinner[m].abbreviation) {
+                    if(republican.indexOf(candidate) !== -1) {
+                        if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
+                            if(candidate == _stateWinner[m].Republican) {
+                                return 1;
+                            }else {
+                                return 0;
+                            }
+                        }else {
+                            return -1;
+                        }
+                    }else {
+                        if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
+                            if(candidate == _stateWinner[m].Democrat) {
+                                return 1;
+                            }else {
+                                return 0;
+                            }
+                        }else {
+                            return -1;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        function getFillColor(data) {
+            if(curSentiment === "Average") {
+                return color(data.avgAvgScore);
+            }else {
+                return curSentiment === "Positive" ? color(data.positiveAvgScore) : color(data.negativeAvgScore);
+            }
+        }
+        function getFillTextures(n, data) {
+            var fillTextures,
+                fillColor;
+            
+            for(var m = 0; m < _stateWinner.length; m ++) {
+                if(data.state == _stateWinner[m].abbreviation) {
+                    if(republican.indexOf(data.candidate) !== -1) {
+                        if(republican.indexOf(_stateWinner[m].Republican) !== -1) {
+                            if(data.candidate == _stateWinner[m].Republican) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
+                        }else {
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
+                        }
+                    }else {
+                        if(democrat.indexOf(_stateWinner[m].Democrat) !== -1) {
+                            if(data.candidate == _stateWinner[m].Democrat) {
+                                fillTextures = textures.circles()
+                                        .radius(1)
+                                        .thicker()
+                                        .stroke("#000")
+                                        .background(getFillColor(data))
+                                        .strokeWidth(1);
+                            }else {
+                                fillTextures = textures.paths()
+                                        .d("crosses")
+                                        .background(getFillColor(data))
+                                        .stroke("#000")
+                                        .lighter()
+                                        .thicker();
+                            }
+                        }else {
+                            fillTextures = textures.lines()
+                                        .thicker()
+                                        .lighter()
+                                        .orientation("vertical")
+                                        .stroke("#000")
+                                        .background(getFillColor(data));
+                        }
+                    }
+                    break;
+                }
+            }
+            svgs[n].call(fillTextures);
+            return fillTextures.url();
+        }
+        function getAbbr(stateName) {
+            switch(stateName) {
+                        case "Alabama": return "AL";
+                        case "Alaska": return "AK";
+                        case "Arizona": return "AZ";
+                        case "Arkansas": return "AR";
+                        case "California": return "CA";
+                        case "Colorado": return "CO";
+                        case "Connecticut": return "CT";
+                        case "Delaware": return "DE";
+                        case "Florida": return "FL";
+                        case "Georgia": return "GA";
+                        case "Hawaii": return "HI";
+                        case "Idaho": return "ID";
+                        case "Illinois": return "IL";
+                        case "Indiana": return "IN";
+                        case "Iowa": return "IA";
+                        case "Kansas": return "KS";
+                        case "Kentucky": return "KY";
+                        case "Louisiana": return "LA";
+                        case "Maine": return "ME";
+                        case "Maryland": return "MD";
+                        case "Massachusetts": return "MA";
+                        case "Michigan": return "MI";
+                        case "Minnesota": return "MN";
+                        case "Mississippi": return "MS";
+                        case "Missouri": return "MO";
+                        case "Montana": return "MT";
+                        case "Nebraska": return "NE";
+                        case "Nevada": return "NV";
+                        case "New Hampshire": return "NH";
+                        case "New Jersey": return "NJ";
+                        case "New Mexico": return "NM";
+                        case "New York": return "NY";
+                        case "North Carolina": return "NC";
+                        case "North Dakota": return "ND";
+                        case "Ohio": return "OH";
+                        case "Oklahoma": return "OK";
+                        case "Oregon": return "OR";
+                        case "Pennsylvania": return "PA";
+                        case "Rhode Island": return "RI";
+                        case "South Carolina": return "SC";
+                        case "South Dakota": return "SD";
+                        case "Tennessee": return "TN";
+                        case "Texas": return "TX";
+                        case "Utah": return "UT";
+                        case "Vermont": return "VT";
+                        case "Virginia": return "VA";
+                        case "Washington": return "WA";
+                        case "West Virginia": return "WV";
+                        case "Wisconsin": return "WI";
+                        case "Wyoming": return "WY";
+                    }
+        }
+        function returnFullState(abbrName) {
+            switch(abbrName) {
+                case "AL": return "Alabama";
+				case "AK": return "Alaska";
+				case "AZ": return "Arizona";
+				case "AR": return "Arkansas";
+				case "CA": return "California";
+				case "CO": return "Colorado";
+				case "CT": return "Connecticut";
+				case "DE": return "Delaware";
+				case "FL": return "Florida";
+				case "GA": return "Georgia";
+				case "HI": return "Hawaii";
+				case "ID": return "Idaho";
+				case "IL": return "Illinois";
+				case "IN": return "Indiana";
+				case "IA": return "Iowa";
+				case "KS": return "Kansas";
+				case "KY": return "Kentucky";
+				case "LA": return "Louisiana";
+				case "ME": return "Maine";
+				case "MD": return "Maryland";
+				case "MA": return "Massachusetts";
+				case "MI": return "Michigan";
+				case "MN": return "Minnesota";
+				case "MS": return "Mississippi";
+				case "MO": return "Missouri";
+				case "MT": return "Montana";
+				case "NE": return "Nebraska";
+				case "NV": return "Nevada";
+				case "NH": return "New Hampshire";
+				case "NJ": return "New Jersey";
+				case "NM": return "New Mexico";
+				case "NY": return "New York";
+				case "NC": return "North Carolina";
+				case "ND": return "North Dakota";
+				case "OH": return "Ohio";
+				case "OK": return "Oklahoma";
+				case "OR": return "Oregon";
+				case "PA": return "Pennsylvania";
+				case "RI": return "Rhode Island";
+				case "SC": return "South Carolina";
+				case "SD": return "South Dakota";
+				case "TN": return "Tennessee";
+				case "TX": return "Texas";
+				case "UT": return "Utah";
+				case "VT": return "Vermont";
+				case "VA": return "Virginia";
+				case "WA": return "Washington";
+				case "WV": return "West Virginia";
+				case "WI": return "Wisconsin";
+				case "WY": return "Wyoming";
+                    }
+        }
+        function renderLegend() {
+            var colorRange = function() {
+                switch(curSentiment) {
+                    case "Positive" : return redSaturation;
+                    case "Negative" : return blueSaturation;
+                    case "Average" : 
+                        var temp = blueSaturation.slice();
+                        return temp.concat(redSaturation);
+                }
+            }
+            
+            var sentimentDegree = function() {
+                switch(curSentiment) {
+                    case "Positive" : return positiveDegree;
+                    case "Negative" : return negativeDegree;
+                    case "Average" : 
+                        var temp = negativeDegree.slice();
+                        return temp.splice(0,3).concat(positiveDegree);
+                }
+            }
+            var scaleDomain = function() {
+                switch(curSentiment) {
+                    case "Positive" : return [-.5, 10];
+                    case "Negative" : return [-10, 1];
+                    case "Average" : return [-11, 11];
+                }
+            }
+            var g2 = svgLegend.append("g")
+                .attr("class", "key")
+                .attr("transform", "translate(10,10)");
+            var axisColor = d3.scale.threshold()
+                .domain(sentimentDegree())
+                .range(colorRange());
+            var x = d3.scale.linear()
+                .domain(scaleDomain())
+                .range([0, 140]);
+            var avgX = d3.scale.linear()
+                .domain(scaleDomain())
+                .range([0, 240]);
+            if(curSentiment === "Average") {
+                var threashold = d3.svg.axis()
+                    .scale(avgX)
+                    .orient("bottom")
+                    .tickValues(axisColor.domain())
+                    .tickFormat(function(d) { return d === .5 ? formatNumber(d) : d});
+            }else {   
+                var threashold = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom")
+                    .tickValues(axisColor.domain())
+                    .tickFormat(function(d) { return d === .5 ? formatNumber(d) : d});
+            }
+            g2.selectAll("rect")
+                .data(axisColor.range().map(function(d, i) {
+                    switch(curSentiment) {
+                        case "Positive" : return {
+                            x0: i ? x(axisColor.domain()[i - 1]) : x.range()[0],
+                            x1: i < axisColor.domain().length ? x(axisColor.domain()[i]) : x.range()[1],
+                            z: d
+                          };
+                        case "Negative" : return {
+                            x0: i < axisColor.domain().length ? x(axisColor.domain()[i]) : x.range()[1],
+                            x1: i < axisColor.domain().length - 1 ? x(axisColor.domain()[i + 1]) : x.range()[1],
+                            z: d
+                        };
+                        case "Average" : return {
+                            x0: i ? avgX(axisColor.domain()[i - 1]) : avgX.range()[0],
+                            x1: i < axisColor.domain().length ? avgX(axisColor.domain()[i]) : avgX.range()[1],
+                            z: d
+                        }
+                    }
+                }))
+              .enter().append("rect")
+                .attr("height", 8)
+                .attr("x", function(d) { return d.x0; })
+                .attr("width", function(d) { return d.x1 - d.x0; })
+                .style("fill", function(d) { return d.z; });
+            g2.call(threashold).append("text")
+                .attr("class", "caption")
+                .attr("x", function() {
+                    return curSentiment === "Average" ? 260 : 160;
+                })
+                .attr("y", 6)
+                .style("font", "10px Menlo, sans-serif")
+                .text(curSentiment + " average Score");
+        }
+        function renderFontColorLegend() {
+            var legend = ["Won", "Loss", "Not Yet"];
+            var t1 = textures.circles()
+                        .radius(1)
+                        .thicker()
+                        .background(scolor)
+                        .stroke("#000")
+                        .strokeWidth(1);
+            var t2 = textures.paths()
+                        .d("crosses")
+                        .background(scolor)
+                        .stroke("#000")
+                        .lighter()
+                        .thicker();
+            var t3 = textures.lines()
+                        .thicker()
+                        .lighter()
+                        .orientation("vertical")
+                        .stroke("#000")
+                        .background(scolor);
+            var textureC = [t1, t2, t3]
+            function scolor() {
+                return curSentiment === "Positive" ? color(2) : color(-2);
+            }
+            for(var i = 0; i < 3; i ++) {
+                var fcSvg = d3.select("#fontColorLegend").append("svg")
+                        .attr("class", "fcSvg")
+                        .attr("width", "33%")
+                        .attr("height", "100%")
+                fcSvg.call(textureC[i])
+                var g = fcSvg.append("g")
+                        .attr("transform", "translate(" + 20 + "," + 20 + ")");
+                g.append("circle")
+                        .attr("r", 20)
+                        .style("fill", textureC[i].url());
+                g.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 3)
+                        .attr("y", 6)
+                        .text("NY")
+                        .attr("font-size", 15)
+                        .attr("font-weight", 900)
+                        .attr("fill", "#fff")
+                g.append("text")
+                        .text(legend[i])
+                        .attr("x", 30)
+                        .attr("y", 6)
+                        .attr("font-weight", 900)
+                        .attr("font-size", 15)
+            }
+        }
+        function renderBubbleSizeLegend() {
+            var bsSvg = d3.select("#bubbleSizeLegend").append("svg")
+                    .attr("class","bsSvg")
+                    .attr("width", "50%")
+                    .attr("height", "50%")
+                    .attr("transform", "translate(" + 400 + "," + -100 + ")");
+            var g = bsSvg.selectAll("g")
+                    .data([
+                        {l: 10, r: Math.sqrt(30 * size(10) / Math.PI), x: 140},
+                        {l: 50, r: Math.sqrt(30 * size(50) / Math.PI), x: 200},
+                        {l: 100, r: Math.sqrt(30 * size(100) / Math.PI), x: 270},
+                        {l: 300, r: Math.sqrt(30 * size(300) / Math.PI), x: 370}
+                    ])
+                    .enter().append("g")
+                    .attr("transform", function(d) {
+                        return "translate(" + d.x + "," + 60 + ")"
+                    });
+            g.append("circle")
+                .attr("r", function(d) { return d.r})
+                .style("stroke", "#000")
+                .style("stroke-width", 1)
+                .style("fill", "#fff")
+                .style("fill-opacity", 0.1)
+                .style("stroke-opacity", 1)
+            g.append("text")
+                .attr("font-size", function(d) { return  (4 * Math.log(d.r)).toFixed(0) })
+                .attr({
+                  "text-anchor": "middle"
+                })
+                .text(function(d) { return d.l});
+        }
+        function renderNestedBarChart(data) {
+            //elements for nested bar chart
+            var nestedBarSVG = d3.select("#nestedBarSVG").append("svg")
+                .attr("class", "nestedBarSVG")
+                .attr("width", 135)
+                .attr("height", 350)
+            var nestedBarXScale = d3.scale.ordinal()
+                .domain([data.candidate])
+                .rangeRoundBands([0, 100 - 50], .1);
+            var nestedBarYScale = d3.scale.linear()
+                .domain([-1, 1])
+                .range([350 - 20, 0]); // 330  down 20
+            var nestedBarXAxis = d3.svg.axis()
+                .scale(nestedBarXScale)
+                .orient("bottom")
+            var nestedBarYAxis = d3.svg.axis()
+                .scale(nestedBarYScale)
+                .orient("left")
+                .tickValues([-1,-.8,-.6,-.4,-.2,0,.2,.4,.6,.8,1])
+                .tickFormat(formatPercent);
+            nestedBarSVG.append("text")
+                .attr("transform", "translate(50, 15)")
+                .style("font", "px Menlo, sans-serif")
+                
+            
+            nestedBarSVG.append("g")
+                .attr("class", "nestedYAxis")
+                .attr("transform", "translate(39, 8)")
+                .call(nestedBarYAxis)
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Sentiment Percentage");
+            nestedBarSVG.append("g")
+                .attr("class", "nestedXAxis")
+                .attr("transform", "translate(55, 175)")
+                .call(nestedBarXAxis);
 
-    //get json data    
-    queue()
-        .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/us.json")
-        .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
-        //.defer(d3.json, "http://tweet-sentiment-nyu.herokuapp.com/sentimentResult")
-        .await(ready);
-
-    function ready(error, us, sentimentResults) {
-        _us = us;
-        _sentimentResults = sentimentResults;
-        render(us, sentimentResults, curCandidate, curSentiment, curState);
-    }
+            var positiveBarGroup = nestedBarSVG.append("g")
+                .attr("transform", "translate(55, 10)");
+            positiveBarGroup.selectAll("rect")
+                .data([data])
+                .enter().append("rect")
+                    .attr("class", "positiveBar")
+                    .attr("x", function(d) { 
+                        return nestedBarXScale(d.candidate);
+                    })
+                    .attr("y", function(d) {
+                        console.log(d.positivePercent);
+                        return nestedBarYScale(d.positivePercent);
+                    })
+                    .attr("width", nestedBarXScale.rangeBand())
+                    .attr("height", function(d) {
+                        return (165 - nestedBarYScale(d.positivePercent))
+                    })
+                    .attr("fill", "#FF1011")
+                    .attr("opacity", 0.5)
+            var negativeBarGroup = nestedBarSVG.append("g")
+                .attr("transform", "translate(55, 10)");
+            negativeBarGroup.selectAll("rect")
+                .data([data])
+                .enter().append("rect")
+                    .attr("class", "negativeBar")
+                    .attr("x", function(d) {
+                        return nestedBarXScale(d.candidate);
+                    })
+                    .attr("y", function(d) {
+                        return nestedBarYScale(0);
+                    })
+                    .attr("width", nestedBarXScale.rangeBand())
+                    .attr("height", function(d) {
+                        return nestedBarYScale(d.negativePercent * (-1)) - 175;
+                    })
+                    .attr("fill", "#08306B") 
+                    .attr("opacity", 0.5)
+        }
+        function renderNestedLineChart() {
+            var formatDate = d3.time.format("%m-%d-%Y");
+            var dr = _dailyResult.filter(function(d) {
+                return d.candidates === curCandidate && d.state === returnFullState(curState);
+            })
+            .map(function(d) {
+               var state = d.state,
+                   candidate = d.candidates,
+                   avgAvgScore = d.positiveAvgScore + d.negativeAvgScore,
+                   date = formatDate.parse(d.date),
+                   dayNum = d.dayNum;
+               return {
+                   state: state,
+                   candidate: candidate,
+                   avgAvgScore: avgAvgScore,
+                   date: date,
+                   dayNum: dayNum
+               };
+           });
+            var nestedLineXScale = d3.time.scale()
+                .range([0, 560])
+                .domain(d3.extent(dr, function(d) { return d.date;}));
+            var nestedLineYScale = d3.scale.linear()
+                .range([320, 0])
+                .domain(d3.extent(dr, function(d) { return d.avgAvgScore}));
+            var nestedLineXAxis = d3.svg.axis()
+                .scale(nestedLineXScale)
+                .orient("bottom");
+            var nestedLineYAxis = d3.svg.axis()
+                .scale(nestedLineYScale)
+                .orient("left");
+            var line = d3.svg.line()
+                .x(function(d) { return nestedLineXScale(d.date); })
+                .y(function(d) { return nestedLineYScale(d.avgAvgScore); })
+            var nestedLineSVG = d3.select("#nestedLineSVG").append("svg")
+                    .attr("class", "nestedLineSVG")
+                    .attr("width", 560)
+                    .attr("height", 350)
+                  .append("g")
+                    .attr("transform", "translate(33,10)")
+            nestedLineSVG.append("g")
+                .attr("class", "nestedXAxis")
+                .attr("transform", "translate(0," + 320 + ")")
+                .call(nestedLineXAxis);
+            nestedLineSVG.append("g")
+                .attr("class", "nestedYAxis")
+                .call(nestedLineYAxis)
+                .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("TotalAverageScore")
+            nestedLineSVG.append("path")
+                .datum(dr)
+                .attr("class", "line")
+                .attr("d",line);
+        }
+        //http://tweet-sentiment-nyu.herokuapp.com/sentimentResult
+        /*d3.json("https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json", function(error, states) {
+          if (error) throw error;
+            _states = states;
+            render(_states, curSentiment);
+        });*/
+        queue()
+            .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresults.json")
+            .defer(d3.json, "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/stateWinner.json")
+            .defer(d3.json,
+            "https://raw.githubusercontent.com/WeitaoWang/tweet-sentiment/master/data%20sample/sentimentresultdaily.json")
+            .await(ready);
+        function ready(error, states, stateWinner, dailyResult) {
+            if (error) throw error;
+            _states = states;
+            _stateWinner = stateWinner;
+            _dailyResult = dailyResult;
+            render(_states, curCandidate, curState, curSentiment);
+        }
 </script>
+</html>
