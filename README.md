@@ -1,7 +1,9 @@
 # tweet-sentiment
 
 Analyse sentiment of tweets about president election with real-time mapshowing
+
 [Project Demo](http://tweet-sentiment-nyu.herokuapp.com/)
+
 [Video Demo](https://vimeo.com/167437613)
 
 ## Dependencies
